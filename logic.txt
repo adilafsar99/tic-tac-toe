@@ -1,0 +1,46 @@
+The program will have four initial modules:
+
+1) Player   
+2) Board
+3) Game
+4) DisplayController
+
+1) Player:
+   i) Properties:
+      - name
+      - mark
+      - score
+      - isAi
+
+   ii) Methods:
+      - getName()
+      - setName()
+      - getScore()
+      - incrementScore()
+
+2) Board:
+   i) Properties:
+      - board
+      - rows
+      - colums
+
+   ii) Methods:
+      - createBoard()     
+      - cloneBoard()
+      - checkForWin()
+      - isBoardEmpty()
+
+3) Game:
+   i) Properties:
+      - round
+      - currentPlayer
+      
+   ii) Methods:
+      - changeRound()
+      - changeCurrentPlayer()
+      - playRound()
+
+4) DisplayController:
+   i) Methods:
+      - updateScreen()
+      - handleClick()
