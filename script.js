@@ -18,15 +18,15 @@ const Player = (() => {
 
     const setMove = newMove => move = newMove;
 
-    const toggleIsAi = () => isAi === true ? false : true;
+    const toggleAi = () => isAi === true ? false : true;
 
     const getScore = () => score;
 
     const incrementScore = () => ++score;
 
-    return {getName, setName, getMark, setMark, getMove, setMove, toggleIsAi, getScore, incrementScore};
+    return {getName, setName, getMark, setMark, getMove, setMove, toggleAi, getScore, incrementScore};
 
-})()
+})();
 
 const Board = (() => {
     let rows = 3;
@@ -153,7 +153,9 @@ const Board = (() => {
         return false;
     }
 
-    return {createBoard, cloneBoard, isEmpty, makeMove, checkBoard, checkRows, checkColumns, checkDiagonals}
+    const getMatchingPattern = () => matchingPattern;
+
+    return {createBoard, cloneBoard, isEmpty, makeMove, checkBoard, checkRows, checkColumns, checkDiagonals, getMatchingPattern}
 
     // createBoard();
     // boardClone = cloneBoard();
@@ -163,5 +165,29 @@ const Board = (() => {
     // console.log(boardClone)
     // console.log(checkBoard(boardClone, 'X'))
 
-})()
+})();
 
+const Game = ((Player, Board) => {
+
+    console.log(Player)
+    const player = Player
+    console.log(player.setName('Adil'))
+    console.log(player.setMark('X'))
+    console.log(player.setMove({row: 1, column: 2}))
+    console.log(player.toggleAi());
+    
+    
+    
+    
+    
+    // console.log(Board)
+    // const board = Board.createBoard()
+    // console.log(board)
+    // const clonedBoard = Board.cloneBoard()
+    // console.log(clonedBoard)
+    // Board.makeMove(clonedBoard, {row: 1, column: 2}, 'O')
+    // Board.makeMove(clonedBoard, {row: 1, column: 0}, 'O')
+    // Board.makeMove(clonedBoard, {row: 1, column: 1}, 'O')
+    // console.log(Board.checkBoard(clonedBoard, "O"))
+
+})(Player, Board);
