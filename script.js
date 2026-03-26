@@ -1,3 +1,33 @@
+const Player = (() => {
+    let name;
+    let mark;
+    let move;
+
+    let isAi = false;
+    let score = 0;
+
+    const getName = () => name;
+
+    const setName = newName => name = newName;
+
+    const getMark = () => mark;
+
+    const setMark = newMark => mark = newMark;
+
+    const getMove = () => move;
+
+    const setMove = newMove => move = newMove;
+
+    const toggleIsAi = () => isAi === true ? false : true;
+
+    const getScore = () => score;
+
+    const incrementScore = () => ++score;
+
+    return {getName, setName, getMark, setMark, getMove, setMove, toggleIsAi, getScore, incrementScore};
+
+})()
+
 const Board = (() => {
     let rows = 3;
     let columns = 3;
@@ -13,7 +43,7 @@ const Board = (() => {
         return board.map(row => [...row]);
     }
 
-    const isEmpty = () => {
+    const isEmpty = (board) => {
         for (let row = 0; row < board.length; row++) {
             for (let column = 0; column < board[row].length; column++) {
                 if (board[row][column] === null) {
@@ -123,6 +153,8 @@ const Board = (() => {
         return false;
     }
 
+    return {createBoard, cloneBoard, isEmpty, makeMove, checkBoard, checkRows, checkColumns, checkDiagonals}
+
     // createBoard();
     // boardClone = cloneBoard();
     // makeMove(boardClone, { row: 0, column: 2 }, 'X');
@@ -132,3 +164,4 @@ const Board = (() => {
     // console.log(checkBoard(boardClone, 'X'))
 
 })()
+
