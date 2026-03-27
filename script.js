@@ -63,10 +63,7 @@ const Board = (() => {
     }
 
     const checkBoard = (board, mark) => {
-        if (checkRows(board, mark) || checkColumns(board, mark) || checkDiagonals(board, mark)) {
-            return true;
-        }
-        return false;
+        return checkRows(board, mark) || checkColumns(board, mark) || checkDiagonals(board, mark);
     }
 
     const checkRows = (board, mark) => {
@@ -153,11 +150,21 @@ const Board = (() => {
         return false;
     }
 
+    const checkDraw = (board, move, mark) => {
+        if (!checkRows(board, move, mark) &&
+            !checkColumns(board, move, mark) &&
+            !checkDiagonals(board, move, mark) &&
+            !isEmpty(board)) {
+            return true;
+        }
+        return false;
+    }
+
     const getMatchingPattern = () => matchingPattern;
 
     const resetMatchingPattern = () => matchingPattern = [];
 
-    return { createBoard, cloneBoard, isEmpty, makeMove, checkBoard, checkRows, checkColumns, checkDiagonals, getMatchingPattern, resetMatchingPattern }
+    return { createBoard, cloneBoard, isEmpty, makeMove, checkBoard, checkRows, checkColumns, checkDiagonals, checkDraw, getMatchingPattern, resetMatchingPattern }
 
 })();
 
@@ -206,6 +213,10 @@ const Game = ((Player, Board) => {
         return false;
     }
 
+    const checkRoundDraw = () => {
+        return Board.checkDraw(board, currentPlayer.getMove(), currentPlayer.getMark());
+    }
+
     const setRoundWinner = () => roundWinner = currentPlayer;
 
     const incrementTurn = () => ++turn;
@@ -245,24 +256,21 @@ const Game = ((Player, Board) => {
 
     const playRound = () => {
         makeMove();
-        console.log(board)
         if (checkRoundWin()) {
             currentPlayer.incrementScore();
-            console.log(currentPlayer.getScore())
             setRoundWinner();
-            console.log('roundWinner', roundWinner)
             if (checkGameWin()) {
                 setGameWinner();
-                console.log('gameWinner', gameWinner)
                 endGame();
             }
             continueGame();
         }
+        else if (checkDraw()) {
+            continueGame();
+        }
         else {
             incrementTurn();
-            console.log('turn', turn)
             switchCurrentPlayer();
-            console.log(currentPlayer.getName())
         }
     }
 
