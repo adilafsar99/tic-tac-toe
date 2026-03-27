@@ -1,4 +1,4 @@
-const Player = (() => {
+const Player = () => {
     let name;
     let mark;
     let move;
@@ -24,9 +24,9 @@ const Player = (() => {
 
     const incrementScore = () => ++score;
 
-    return {getName, setName, getMark, setMark, getMove, setMove, toggleAi, getScore, incrementScore};
+    return { getName, setName, getMark, setMark, getMove, setMove, toggleAi, getScore, incrementScore };
 
-})();
+};
 
 const Board = (() => {
     let rows = 3;
@@ -155,7 +155,7 @@ const Board = (() => {
 
     const getMatchingPattern = () => matchingPattern;
 
-    return {createBoard, cloneBoard, isEmpty, makeMove, checkBoard, checkRows, checkColumns, checkDiagonals, getMatchingPattern}
+    return { createBoard, cloneBoard, isEmpty, makeMove, checkBoard, checkRows, checkColumns, checkDiagonals, getMatchingPattern }
 
     // createBoard();
     // boardClone = cloneBoard();
@@ -168,18 +168,79 @@ const Board = (() => {
 })();
 
 const Game = ((Player, Board) => {
+    let playerOne = Player();
+    let playerTwo = Player();
+    let currentPlayer;
+    let board;
+    let round;
 
-    console.log(Player)
-    const player = Player
-    console.log(player.setName('Adil'))
-    console.log(player.setMark('X'))
-    console.log(player.setMove({row: 1, column: 2}))
-    console.log(player.toggleAi());
+    // playerOne.setMark('X')
+    // playerTwo.setMark('O')
     
+   const initializePlayers = (player1Config = {}, player2Config = {}) => {
+       playerOne.setName(player1Config.name);
+       playerOne.setMark(player1Config.mark);
+       playerTwo.setName(player2Config.name);
+       playerTwo.setMark(player2Config.mark);
+   }
+
+    const setCurrentPlayer = () => {
+        currentPlayer = playerOne.mark === 'X' ? playerOne : playerTwo;
+    }
     
+    // setCurrentPlayer();
+    // console.log(currentPlayer)
+
+    const startGame = () => {
+       board = Board.createBoard();
+       initializePlayers();
+       setCurrentPlayer();
+       round = 0;
+    }
+
     
-    
-    
+
+
+
+    // startGame();
+    initializePlayers({name: 'Adil', mark: 'X'}, {name: 'Hashir', mark:'O'})
+    // console.log(board)
+    console.log(playerOne.getName())
+    console.log(playerOne.getMark())
+    console.log(playerTwo.getName())
+    console.log(playerTwo.getMark())
+  
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // console.log(Player)
+    // const player = Player
+    // console.log(player.setName('Adil'))
+    // console.log(player.setMark('X'))
+    // console.log(player.setMove({row: 1, column: 2}))
+    // console.log(player.toggleAi());
+
     // console.log(Board)
     // const board = Board.createBoard()
     // console.log(board)
