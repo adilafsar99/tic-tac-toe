@@ -155,15 +155,9 @@ const Board = (() => {
 
     const getMatchingPattern = () => matchingPattern;
 
-    return { createBoard, cloneBoard, isEmpty, makeMove, checkBoard, checkRows, checkColumns, checkDiagonals, getMatchingPattern }
+    const resetMatchingPattern = () => matchingPattern = [];
 
-    // createBoard();
-    // boardClone = cloneBoard();
-    // makeMove(boardClone, { row: 0, column: 2 }, 'X');
-    // makeMove(boardClone, { row: 2, column: 0 }, 'X');
-    // makeMove(boardClone, { row: 1, column: 1 }, 'X');
-    // console.log(boardClone)
-    // console.log(checkBoard(boardClone, 'X'))
+    return { createBoard, cloneBoard, isEmpty, makeMove, checkBoard, checkRows, checkColumns, checkDiagonals, getMatchingPattern, resetMatchingPattern }
 
 })();
 
@@ -171,84 +165,105 @@ const Game = ((Player, Board) => {
     let playerOne = Player();
     let playerTwo = Player();
     let currentPlayer;
-    let board;
+    let roundWinner;
+    let gameWinner;
+    let board = [];
+    let turn;
     let round;
 
-    // playerOne.setMark('X')
-    // playerTwo.setMark('O')
-    
-   const initializePlayers = (player1Config = {}, player2Config = {}) => {
-       playerOne.setName(player1Config.name);
-       playerOne.setMark(player1Config.mark);
-       playerTwo.setName(player2Config.name);
-       playerTwo.setMark(player2Config.mark);
-   }
+    const initializePlayers = (player1Config = {}, player2Config = {}) => {
+        playerOne.setName(player1Config.name);
+        playerOne.setMark(player1Config.mark);
+        playerTwo.setName(player2Config.name);
+        playerTwo.setMark(player2Config.mark);
+    }
 
     const setCurrentPlayer = () => {
-        currentPlayer = playerOne.mark === 'X' ? playerOne : playerTwo;
+        currentPlayer = playerOne.getMark() === 'X' ? playerOne : playerTwo;
     }
-    
-    // setCurrentPlayer();
-    // console.log(currentPlayer)
 
     const startGame = () => {
-       board = Board.createBoard();
-       initializePlayers();
-       setCurrentPlayer();
-       round = 0;
+        board = Board.createBoard();
+        initializePlayers();
+        setCurrentPlayer();
+        turn = 1;
+        round = 1;
     }
 
-    
+    const makeMove = () => {
+        if (currentPlayer.isAi) {
+            // Use minimax algorithm
+        }
+        else {
+            Board.makeMove(board, currentPlayer.getMove(), currentPlayer.getMark());
+        }
+    }
 
+    const checkRoundWin = () => {
+        if (Board.checkBoard(board, currentPlayer.getMark())) {
+            return true;
+        }
+        return false;
+    }
 
+    const setRoundWinner = () => roundWinner = currentPlayer;
 
-    // startGame();
-    initializePlayers({name: 'Adil', mark: 'X'}, {name: 'Hashir', mark:'O'})
-    // console.log(board)
-    console.log(playerOne.getName())
-    console.log(playerOne.getMark())
-    console.log(playerTwo.getName())
-    console.log(playerTwo.getMark())
-  
-   
+    const incrementTurn = () => ++turn;
 
+    const switchCurrentPlayer = () => {
+        currentPlayer = currentPlayer === playerOne ? playerTwo : playerOne;
+    }
 
+    const incrementRound = () => ++round;
 
+    const checkGameWin = () => {
+        if (currentPlayer.getScore() === 3) {
+            return true;
+        }
+        return false;
+    }
 
+    const setGameWinner = () => gameWinner = currentPlayer;
 
+    const continueGame = () => {
+        incrementRound();
+        board = Board.createBoard();
+        Board.resetMatchingPattern;
+        turn = 1;
+    }
 
+    const endGame = () => {
+        board = [];
+        playerOne = null;
+        playerTwo = null;
+        currentPlayer = null;
+        roundWinner = null;
+        gameWinner = null;
+        turn = 1;
+        round = 1;
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // console.log(Player)
-    // const player = Player
-    // console.log(player.setName('Adil'))
-    // console.log(player.setMark('X'))
-    // console.log(player.setMove({row: 1, column: 2}))
-    // console.log(player.toggleAi());
-
-    // console.log(Board)
-    // const board = Board.createBoard()
-    // console.log(board)
-    // const clonedBoard = Board.cloneBoard()
-    // console.log(clonedBoard)
-    // Board.makeMove(clonedBoard, {row: 1, column: 2}, 'O')
-    // Board.makeMove(clonedBoard, {row: 1, column: 0}, 'O')
-    // Board.makeMove(clonedBoard, {row: 1, column: 1}, 'O')
-    // console.log(Board.checkBoard(clonedBoard, "O"))
+    const playRound = () => {
+        makeMove();
+        console.log(board)
+        if (checkRoundWin()) {
+            currentPlayer.incrementScore();
+            console.log(currentPlayer.getScore())
+            setRoundWinner();
+            console.log('roundWinner', roundWinner)
+            if (checkGameWin()) {
+                setGameWinner();
+                console.log('gameWinner', gameWinner)
+                endGame();
+            }
+            continueGame();
+        }
+        else {
+            incrementTurn();
+            console.log('turn', turn)
+            switchCurrentPlayer();
+            console.log(currentPlayer.getName())
+        }
+    }
 
 })(Player, Board);
