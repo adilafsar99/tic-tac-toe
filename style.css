@@ -82,6 +82,11 @@ input, button {
     background-color: var(--color-blue);
 }
 
+button.selected-mark {
+    color: var(--color-blue);
+    background-color: var(--color-white);
+}
+
 #start-button {
     background-color: var(--color-green);
 }

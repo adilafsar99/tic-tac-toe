@@ -276,12 +276,37 @@ const Game = ((Player, Board) => {
         }
     }
 
-    return {playerOne, playerTwo, currentPlayer, startGame, playRound, continueGame, endGame}
+    return { playerOne, playerTwo, currentPlayer, startGame, playRound, continueGame, endGame }
 
 })(Player, Board);
 
 /* The module to implement the UI of the game */
 
 const DisplayController = ((Game) => {
-   
+    const selectMark = (event) => {
+        const playerMark = event.target;
+        const markButtons = playerMark.parentElement.children;
+        // Adding viusal style to the selected button
+        for (const markButton of markButtons) {
+            markButton.classList.remove('selected-mark');
+        }
+        playerMark.classList.add('selected-mark');
+        const selectedMarks = document.querySelectorAll('.selected-mark');
+        // To make sure both players can't select the same mark
+        if (selectedMarks.length === 2) {
+            if (selectedMarks[0].textContent === selectedMarks[1].textContent) {
+                selectedMarks.forEach(selectedMark => {
+                    if (selectedMark !== playerMark) {
+                        selectedMark.classList.remove('selected-mark');
+                    }
+                });
+            }
+        }
+    }
+
+
+    const markButtons = document.querySelectorAll('.mark-button');
+    markButtons.forEach(markButton => markButton.onclick = selectMark)
+
+
 })(Game)
