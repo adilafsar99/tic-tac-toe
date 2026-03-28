@@ -1,0 +1,87 @@
+:root {
+    --color-white: #fff;
+    --color-grey: #d0d0d0;
+    --color-red:  #c72a2a;
+    --color-blue: #144eca;
+    --color-green: #137413;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+input, button {
+    appearance: none;
+    border: 2px solid var(--color-grey);
+    font-family: inherit;
+    font-size: 100%;
+    background-color: var(--color-white);
+    border-radius: 8px;
+    padding: 5px;
+}
+
+.setup-screen-div button {
+    color: var(--color-white);
+    font-weight: bold;
+    padding: 0.5em;
+    cursor: pointer;
+}
+
+.title-div {
+    padding: 1em;
+    text-align: center;
+}
+
+.container {
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.setup-screen-div {
+    width: min(300px, 80%);
+    height: 300px;
+    margin: 0 auto;
+    padding: 1em;
+    border: 2px solid var(--color-grey);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.player-field-div {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.player-name-field {
+    width: 100%;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+.ai-button {
+    width: 60px;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+    background-color: var(--color-red);
+}
+
+.mark-buttons-div {
+    text-align: center;
+    margin-top: 0.5em;
+}
+
+.mark-button {
+    background-color: var(--color-blue);
+}
+
+#start-button {
+    background-color: var(--color-green);
+}
