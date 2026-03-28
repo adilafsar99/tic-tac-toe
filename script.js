@@ -1,3 +1,5 @@
+/* The modules implementing the core logic of the game */
+
 const Player = () => {
     let name;
     let mark;
@@ -189,9 +191,9 @@ const Game = ((Player, Board) => {
         currentPlayer = playerOne.getMark() === 'X' ? playerOne : playerTwo;
     }
 
-    const startGame = () => {
+    const startGame = (player1Config, player2Config) => {
         board = Board.createBoard();
-        initializePlayers();
+        initializePlayers(player1Config, player2Config);
         setCurrentPlayer();
         turn = 1;
         round = 1;
@@ -265,7 +267,7 @@ const Game = ((Player, Board) => {
             }
             continueGame();
         }
-        else if (checkDraw()) {
+        else if (checkRoundDraw()) {
             continueGame();
         }
         else {
@@ -274,4 +276,12 @@ const Game = ((Player, Board) => {
         }
     }
 
+    return {playerOne, playerTwo, currentPlayer, startGame, playRound, continueGame, endGame}
+
 })(Player, Board);
+
+/* The module to implement the UI of the game */
+
+const DisplayController = ((Game) => {
+   
+})(Game)
