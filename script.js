@@ -303,8 +303,14 @@ const DisplayController = ((Game) => {
             }
         }
     }
-
-
+    
+    const toggleAi = (event) => {
+       const playerAi = event.target;
+       playerAi.classList.toggle('isAi');S
+    }
+    
+    const aiButtons = document.querySelectorAll('.ai-button');
+    aiButtons.forEach(aiButton => aiButton.onclick = toggleAi);
     const markButtons = document.querySelectorAll('.mark-button');
     markButtons.forEach(markButton => markButton.onclick = selectMark)
 
