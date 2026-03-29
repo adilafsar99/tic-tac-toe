@@ -230,12 +230,16 @@ const Game = ((Player, Board) => {
     }
 
     const setRoundWinner = () => roundWinner = currentPlayer;
+    
+    const getTurn = () => turn;
 
     const incrementTurn = () => ++turn;
 
     const switchCurrentPlayer = () => {
         currentPlayer = currentPlayer === playerOne ? playerTwo : playerOne;
     }
+
+    const getRound = () => round;
 
     const incrementRound = () => ++round;
 
@@ -286,7 +290,7 @@ const Game = ((Player, Board) => {
         }
     }
 
-    return { playerOne, playerTwo, getCurrentPlayer, startGame, playRound, continueGame, endGame }
+    return { playerOne, playerTwo, getCurrentPlayer, getRound, getTurn, startGame, playRound, continueGame, endGame }
 
 })(Player, Board);
 
@@ -402,9 +406,22 @@ const DisplayController = ((Game) => {
         playerTwoScore.textContent = playerTwo.score;
     }
 
+    function displayGameStats() {
+        
+        let currentRound = 3
+        let currentTurn = 4
+
+
+        const round = document.querySelector('#round');
+        const turn = document.querySelector('#turn');
+        round.textContent = currentRound;
+        turn.textContent = currentTurn;
+    }
+
     function updateDisplay() {
         displayBoard();
         displayPlayerStats();
+        displayGameStats();
     }
 
     updateDisplay()
