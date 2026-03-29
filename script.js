@@ -178,7 +178,7 @@ const Game = ((Player, Board) => {
     let currentPlayer;
     let roundWinner;
     let gameWinner;
-    let board = [];
+    let board;
     let turn;
     let round;
 
@@ -195,6 +195,8 @@ const Game = ((Player, Board) => {
         }
     }
 
+    const getBoard = () => board;
+
     const getCurrentPlayer = () => currentPlayer;
 
     const setCurrentPlayer = () => {
@@ -208,7 +210,6 @@ const Game = ((Player, Board) => {
         turn = 1;
         round = 1;
     }
-
     const makeMove = () => {
         if (currentPlayer.checkAi()) {
             // Use minimax algorithm
@@ -230,7 +231,7 @@ const Game = ((Player, Board) => {
     }
 
     const setRoundWinner = () => roundWinner = currentPlayer;
-    
+
     const getTurn = () => turn;
 
     const incrementTurn = () => ++turn;
@@ -290,7 +291,7 @@ const Game = ((Player, Board) => {
         }
     }
 
-    return { playerOne, playerTwo, getCurrentPlayer, getRound, getTurn, startGame, playRound, continueGame, endGame }
+    return { playerOne, playerTwo, getBoard, getCurrentPlayer, getRound, getTurn, startGame, playRound, continueGame, endGame }
 
 })(Player, Board);
 
@@ -306,8 +307,8 @@ const DisplayController = ((Game) => {
     startButton.onclick = startGame;
     const message = document.querySelector('.message');
 
+    const gameScreen = document.querySelector('.game-screen-div');
     const gameboard = document.querySelector('.gameboard');
-
 
     function toggleAi(event) {
         const playerAi = event.target;
@@ -366,31 +367,28 @@ const DisplayController = ((Game) => {
         };
         Game.startGame(playerOneConfig, playerTwoConfig);
         setupScreen.style.display = 'none';
-        //gamescreen.style.display = 'block';
+        gameScreen.style.display = 'block';
+        updateDisplay();
     }
 
     function displayBoard() {
-        const board = [
-            ['X', 'O', 'O'],
-            ['O', 'X', 'O'],
-            ['X', 'O', 'O']
-        ];
-        board.forEach(row => {
-            row.forEach(column => {
+        gameboard.innerHTML = '';
+        const board = Game.getBoard();
+        console.log(board)
+        board.forEach((row, rowIndex) => {
+            row.forEach((column, columnIndex) => {
                 const cell = document.createElement('button');
                 cell.classList.add('cell');
-                cell.dataset.position = { row, column };
+                cell.dataset.row = rowIndex;
+                cell.dataset.column = columnIndex;
                 cell.textContent = column;
+                cell.onclick = handleBoardClicks;
                 gameboard.appendChild(cell);
             })
         })
     }
 
     function displayPlayerStats() {
-        const playerOne = { name: 'S', mark: 'O', score: '3' }
-        const playerTwo = { name: 'D', mark: 'X', score: '9' }
-
-
         const playerOneName = document.querySelector('#player-one-name');
         const playerOneMark = document.querySelector('#player-one-mark');
         const playerOneScore = document.querySelector('#player-one-score');
@@ -398,24 +396,22 @@ const DisplayController = ((Game) => {
         const playerTwoMark = document.querySelector('#player-two-mark');
         const playerTwoScore = document.querySelector('#player-two-score');
 
-        playerOneName.textContent = playerOne.name;
-        playerOneMark.textContent = playerOne.mark;
-        playerOneScore.textContent = playerOne.score;
-        playerTwoName.textContent = playerTwo.name;
-        playerTwoMark.textContent = playerTwo.mark;
-        playerTwoScore.textContent = playerTwo.score;
+        const playerOne = Game.playerOne;
+        const playerTwo = Game.playerTwo;
+
+        playerOneName.textContent = playerOne.getName();
+        playerOneMark.textContent = playerOne.getMark();
+        playerOneScore.textContent = playerOne.getScore();
+        playerTwoName.textContent = playerTwo.getName();
+        playerTwoMark.textContent = playerTwo.getMark();
+        playerTwoScore.textContent = playerTwo.getScore();
     }
 
     function displayGameStats() {
-        
-        let currentRound = 3
-        let currentTurn = 4
-
-
         const round = document.querySelector('#round');
         const turn = document.querySelector('#turn');
-        round.textContent = currentRound;
-        turn.textContent = currentTurn;
+        round.textContent = Game.getRound();
+        turn.textContent = Game.getTurn();
     }
 
     function updateDisplay() {
@@ -424,6 +420,16 @@ const DisplayController = ((Game) => {
         displayGameStats();
     }
 
-    updateDisplay()
+    function handleBoardClicks(event) {
+        const cell = event.target;
+        const move = { row: cell.dataset.row, column: cell.dataset.column };
+
+        const currentPlayer = Game.getCurrentPlayer();
+
+        currentPlayer.setMove(move);
+        Game.playRound();
+        updateDisplay();
+    }
+
 
 })(Game);
