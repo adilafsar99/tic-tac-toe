@@ -293,13 +293,24 @@ const Game = ((Player, Board) => {
 /* The module to implement the UI of the game */
 
 const DisplayController = ((Game) => {
-    const toggleAi = (event) => {
+    const setupScreen = document.querySelector('.setup-screen-div');
+    const aiButtons = document.querySelectorAll('.ai-button');
+    aiButtons.forEach(aiButton => aiButton.onclick = toggleAi);
+    const markButtons = document.querySelectorAll('.mark-button');
+    markButtons.forEach(markButton => markButton.onclick = selectMark)
+    const startButton = document.querySelector('#start-button');
+    startButton.onclick = startGame;
+    const message = document.querySelector('.message');
+
+    const gameboard = document.querySelector('.gameboard');
+
+    
+    function toggleAi (event) {
         const playerAi = event.target;
         playerAi.classList.toggle('is-ai');
     }
 
-
-    const selectMark = (event) => {
+    function selectMark (event) {
         const playerMark = event.target;
         const markButtons = playerMark.parentElement.children;
         // Adding viusal style to the selected button
@@ -320,7 +331,7 @@ const DisplayController = ((Game) => {
         }
     }
 
-    const startGame = (event) => {
+    function startGame (event) {
         const playerOneInput = document.querySelector('input.player-one');
         const playerOneAiButton = document.querySelector('.player-one.is-ai');
         const playerOneMarkButton = document.querySelector('.player-one.selected-mark');
@@ -353,14 +364,28 @@ const DisplayController = ((Game) => {
         setupScreen.style.display = 'none';
         //gamescreen.style.display = 'block';
     }
-    
-    const setupScreen = document.querySelector('.setup-screen-div');
-    const aiButtons = document.querySelectorAll('.ai-button');
-    aiButtons.forEach(aiButton => aiButton.onclick = toggleAi);
-    const markButtons = document.querySelectorAll('.mark-button');
-    markButtons.forEach(markButton => markButton.onclick = selectMark)
-    const startButton = document.querySelector('#start-button');
-    startButton.onclick = startGame;
-    const message = document.querySelector('.message');
 
-})(Game)
+    const displayBoard = () => {
+        const board = [
+            ['X', 'O', 'O'],
+            ['O', 'X', 'O'],
+            ['X', 'O', 'O']
+        ];
+        board.forEach(row => {
+            row.forEach(column => {
+                const cell = document.createElement('button');
+                cell.classList.add('cell');
+                cell.dataset.position = {row, column};
+                cell.textContent = column;
+                gameboard.appendChild(cell);
+            })
+        })
+    }
+
+    const updateDisplay = () => {
+        displayBoard();
+    }
+
+    updateDisplay()
+    
+})(Game);
