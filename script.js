@@ -178,11 +178,12 @@ const Game = ((Player, Board) => {
     let currentPlayer;
     let roundWinner;
     let gameWinner;
-    let board;
+    let board = [];
     let turn;
     let round;
     let draws;
-    let gameStatus = {}
+    let gameStatus = {};
+    let matchingPattern = [];
 
     const initializePlayers = (playerOneConfig = {}, playerTwoConfig = {}) => {
         playerOne.setName(playerOneConfig.name);
@@ -213,9 +214,11 @@ const Game = ((Player, Board) => {
         round = 1;
         draws = 0;
         gameStatus.hasPlayerWon = false;
+        gameStatus.isDraw = false;
         gameStatus.hasRoundEnded = false;
         gameStatus.hasGameEnded = false;
     }
+
     const makeMove = () => {
         if (currentPlayer.checkAi()) {
             // Use minimax algorithm
@@ -225,9 +228,21 @@ const Game = ((Player, Board) => {
         }
     }
 
+    const setMatchingPattern = () => {
+        matchingPattern =  Board.getMatchingPattern();
+    }
+
+    const getMatchingPattern = () => matchingPattern;
+
+    const resetMatchingPattern = () => {
+        Board.resetMatchingPattern();
+    }
+
     const checkRoundWin = () => {
         if (Board.checkBoard(board, currentPlayer.getMark())) {
             gameStatus.hasPlayerWon = true;
+            gameStatus.hasRoundEnded = true;
+            setMatchingPattern();
             return true;
         }
         return false;
@@ -235,14 +250,14 @@ const Game = ((Player, Board) => {
 
     const checkRoundDraw = () => {
         if (Board.checkDraw(board, currentPlayer.getMove(), currentPlayer.getMark())) {
+            gameStatus.isDraw = true;
             gameStatus.hasRoundEnded = true;
             incrementDraws();
-            console.log(draws)
             return true;
         }
         return false;
     }
-    
+
     const incrementDraws = () => ++draws;
 
     const getDraws = () => draws;
@@ -256,7 +271,12 @@ const Game = ((Player, Board) => {
     const incrementTurn = () => ++turn;
 
     const switchCurrentPlayer = () => {
-        currentPlayer = currentPlayer === playerOne ? playerTwo : playerOne;
+        if (turn === 1) {
+            setCurrentPlayer();
+        }
+        else {
+            currentPlayer = currentPlayer === playerOne ? playerTwo : playerOne;
+        }
     }
 
     const getRound = () => round;
@@ -278,15 +298,17 @@ const Game = ((Player, Board) => {
     const continueGame = () => {
         incrementRound();
         board = Board.createBoard();
-        Board.resetMatchingPattern;
+        resetMatchingPattern();
         turn = 1;
         gameStatus.hasPlayerWon = false;
+        gameStatus.isDraw = false;
         gameStatus.hasRoundEnded = false;
         gameStatus.hasGameEnded = false;
     }
 
     const endGame = () => {
         board = [];
+        resetMatchingPattern();
         playerOne = Player();
         playerTwo = Player();
         currentPlayer = null;
@@ -299,26 +321,25 @@ const Game = ((Player, Board) => {
     }
 
     const playRound = () => {
-        makeMove();
-        if (checkRoundWin()) {
-            currentPlayer.incrementScore();
-            setRoundWinner();
-            if (checkGameWin()) {
-                setGameWinner();
-                //endGame();
+        if (!checkRoundWin() && !checkRoundDraw()) {
+            makeMove();
+            if (checkRoundWin()) {
+                currentPlayer.incrementScore();
+                setRoundWinner();
+                if (checkGameWin()) {
+                    setGameWinner();
+                }
             }
-            //continueGame();
-        }
-        else if (checkRoundDraw()) {
-            //continueGame();
-        }
-        else {
-            incrementTurn();
-            switchCurrentPlayer();
+            else {
+                if (!checkRoundDraw()) {
+                    incrementTurn();
+                    switchCurrentPlayer();
+                }
+            }
         }
     }
 
-    return { playerOne, playerTwo, gameStatus, getBoard, getCurrentPlayer, getRound, getTurn, getDraws, getRoundWinner, getGameWinner, startGame, playRound, continueGame, endGame }
+    return { playerOne, playerTwo, gameStatus, getBoard, getCurrentPlayer, getRound, getTurn, getDraws, getRoundWinner, getGameWinner, getMatchingPattern, startGame, playRound, continueGame, endGame }
 
 })(Player, Board);
 
@@ -431,6 +452,7 @@ const DisplayController = ((Game) => {
         playerOneName.textContent = playerOne.getName();
         playerOneMark.textContent = playerOne.getMark();
         playerOneScore.textContent = playerOne.getScore();
+        console.log(playerOne.getScore())
         playerTwoName.textContent = playerTwo.getName();
         playerTwoMark.textContent = playerTwo.getMark();
         playerTwoScore.textContent = playerTwo.getScore();
@@ -445,10 +467,27 @@ const DisplayController = ((Game) => {
         draws.textContent = Game.getDraws();
     }
 
+    function displayMatchingPattern() {
+        const matchingPattern = Game.getMatchingPattern();
+        const cells = document.querySelectorAll('.cell');
+        const cellsArray = Array.from(cells);
+        matchingPattern.forEach(pattern => {
+            cells.forEach(cell => {
+                let position = { row: cell.dataset.row, column: cell.dataset.column };
+                if (pattern.row == position.row && pattern.column == position.column) {
+                    cell.classList.add('winning-cell');
+                }
+            })
+        })
+    }
+
     function updateDisplay(gameStatus = {}) {
         if (gameStatus.hasGameEnded) {
             const winner = Game.getGameWinner();
-            if (winner.getName() === playerOneName) {
+            console.log(winner.getName())
+            console.log(playerOneName)
+            console.log(playerTwoName)
+            if (winner.getName() === playerOneName.textContent) {
                 playerOneName.classList.add('winner');
             }
             else {
@@ -472,6 +511,8 @@ const DisplayController = ((Game) => {
         gameScreen.style.display = 'none';
         aiButtons.forEach(aiButton => aiButton.classList.remove('is-ai'));
         markButtons.forEach(markButton => markButton.classList.remove('selected-mark'));
+        playerOneName.classList.remove('winner');
+        playerTwoName.classList.remove('winner');
         playerOneInput.value = 'Player One';
         playerTwoInput.value = 'Player Two';
         setupScreen.style.display = 'flex';
@@ -494,9 +535,10 @@ const DisplayController = ((Game) => {
         }
         else if (gameStatus.hasPlayerWon) {
             console.log(currentPlayer.getName() + ' has won this round.')
+            displayMatchingPattern()
             continueButton.style.display = 'block'
         }
-        else if (gameStatus.hasRoundEnded) {
+        else if (gameStatus.isDraw) {
             console.log('It\'s a draw.')
             continueButton.style.display = 'block';
         }

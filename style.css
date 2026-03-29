@@ -205,3 +205,13 @@ button.is-ai {
     font-weight: bold;
     color: var(--color-green);
 }
+
+.winning-cell {
+    color: var(--color-white);
+    background-color: var(--color-green);
+}
+
+.winning-cell:hover {
+    background-color: var(--color-green);
+    opacity: 0.7;
+}
