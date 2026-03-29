@@ -28,7 +28,14 @@ const Player = () => {
 
     const incrementScore = () => ++score;
 
-    return { getName, setName, getMark, setMark, getMove, setMove, checkAi, toggleAi, getScore, incrementScore };
+    const resetPlayer = () => {
+        name = '';
+        mark = '';
+        score = 0;
+        isAi = false;
+    }
+
+    return { getName, setName, getMark, setMark, getMove, setMove, checkAi, toggleAi, getScore, incrementScore, resetPlayer };
 
 };
 
@@ -59,7 +66,7 @@ const Board = (() => {
     }
 
     const checkMove = (board, move) => {
-        if (board[move.row][move.column] !== 'X'&& board[move.row][move.column] !== 'O') {
+        if (board[move.row][move.column] !== 'X' && board[move.row][move.column] !== 'O') {
             return true;
         }
         return false;
@@ -185,24 +192,37 @@ const Game = ((Player, Board) => {
     let currentPlayer;
     let roundWinner;
     let gameWinner;
-    let board = [];
+    let board;
     let turn;
     let round;
     let draws;
     let gameStatus = {};
-    let matchingPattern = [];
+    let matchingPattern;
 
     const initializePlayers = (playerOneConfig = {}, playerTwoConfig = {}) => {
         playerOne.setName(playerOneConfig.name);
         playerOne.setMark(playerOneConfig.mark);
         if (playerOneConfig.isAi) {
             playerOne.toggleAi();
+            console.log(playerOne.checkAi())
         }
         playerTwo.setName(playerTwoConfig.name);
         playerTwo.setMark(playerTwoConfig.mark);
         if (playerTwoConfig.isAi) {
             playerTwo.toggleAi();
         }
+    }
+
+    const resetPlayers = () => {
+        playerOne.resetPlayer();
+        playerTwo.resetPlayer();
+    }
+
+    const setGameStatus = () => {
+        gameStatus.hasPlayerWon = false;
+        gameStatus.isDraw = false;
+        gameStatus.hasRoundEnded = false;
+        gameStatus.hasGameEnded = false;
     }
 
     const getBoard = () => board;
@@ -217,13 +237,10 @@ const Game = ((Player, Board) => {
         board = Board.createBoard();
         initializePlayers(playerOneConfig, playerTwoConfig);
         setCurrentPlayer();
+        setGameStatus();
         turn = 1;
         round = 1;
         draws = 0;
-        gameStatus.hasPlayerWon = false;
-        gameStatus.isDraw = false;
-        gameStatus.hasRoundEnded = false;
-        gameStatus.hasGameEnded = false;
     }
 
     const checkMove = () => {
@@ -297,6 +314,7 @@ const Game = ((Player, Board) => {
     const checkGameWin = () => {
         if (currentPlayer.getScore() === 3) {
             gameStatus.hasGameEnded = true;
+            console.log('It\'s you')
             return true;
         }
         return false;
@@ -320,15 +338,14 @@ const Game = ((Player, Board) => {
     const endGame = () => {
         board = [];
         resetMatchingPattern();
-        playerOne = Player();
-        playerTwo = Player();
+        resetPlayers();
+        setGameStatus();
         currentPlayer = null;
         roundWinner = null;
         gameWinner = null;
         turn = 1;
         round = 1;
-        draws = 0;
-        gameStatus = {};
+        draws = 0;       
     }
 
     const playRound = () => {
@@ -359,6 +376,7 @@ const Game = ((Player, Board) => {
 /* The module to implement the UI of the game */
 
 const DisplayController = ((Game) => {
+    /* Setup screen elements */
     const setupScreen = document.querySelector('.setup-screen-div');
     const playerOneInput = document.querySelector('input.player-one');
     const playerTwoInput = document.querySelector('input.player-two');
@@ -370,6 +388,7 @@ const DisplayController = ((Game) => {
     startButton.onclick = startGame;
     const message = document.querySelector('.message');
 
+    /* Game screen elements */
     const gameScreen = document.querySelector('.game-screen-div');
     const playerOneName = document.querySelector('#player-one-name');
     const playerOneMark = document.querySelector('#player-one-mark');
@@ -382,6 +401,10 @@ const DisplayController = ((Game) => {
     continueButton.onclick = handleContinuation;
     const quitButton = document.querySelector('#quit-button');
     quitButton.onclick = handleQuit;
+
+    /* Game module properties and methods necessary for the UI */
+    const playerOne = Game.playerOne;
+    const playerTwo = Game.playerTwo;
 
     function toggleAi(event) {
         const playerAi = event.target;
@@ -419,6 +442,7 @@ const DisplayController = ((Game) => {
             message.textContent = 'Select players\' marks to start the game!';
             return;
         }
+
         message.textContent = '';
         const playerOneName = playerOneInput.value === '' ? 'Player One' : playerOneInput.value;
         const playerTwoName = playerTwoInput.value === '' ? 'Player Two' : playerTwoInput.value;
@@ -459,13 +483,9 @@ const DisplayController = ((Game) => {
     }
 
     function displayPlayerStats() {
-        const playerOne = Game.playerOne;
-        const playerTwo = Game.playerTwo;
-
         playerOneName.textContent = playerOne.getName();
         playerOneMark.textContent = playerOne.getMark();
         playerOneScore.textContent = playerOne.getScore();
-        console.log(playerOne.getScore())
         playerTwoName.textContent = playerTwo.getName();
         playerTwoMark.textContent = playerTwo.getMark();
         playerTwoScore.textContent = playerTwo.getScore();
@@ -533,19 +553,19 @@ const DisplayController = ((Game) => {
 
         const currentPlayer = Game.getCurrentPlayer();
         const gameStatus = Game.gameStatus;
-        console.log(gameStatus)
-
         currentPlayer.setMove(move);
         Game.playRound();
         updateDisplay();
         if (gameStatus.hasPlayerWon) {
             console.log(currentPlayer.getName() + ' has won this round.')
-            displayMatchingPattern()
-            continueButton.style.display = 'block'
-        }
-        if (gameStatus.hasGameEnded) {
-            console.log(currentPlayer.getName() + ' has won the game.');
-            updateDisplay(gameStatus);
+            displayMatchingPattern();
+            if (gameStatus.hasGameEnded) {
+                console.log(currentPlayer.getName() + ' has won the game.');
+                updateDisplay(gameStatus);
+            }
+            else {
+                continueButton.style.display = 'block';
+            }
         }
         if (gameStatus.isDraw) {
             console.log('It\'s a draw.')
