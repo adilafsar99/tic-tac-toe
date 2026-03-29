@@ -15,7 +15,12 @@
 			<div class="setup-screen-div">
 				<div class="player-setup-div">
 					<div class="player-field-div">
-						<input class="player-one player-name-field" type="text" value="Player One" />
+						<input
+							class="player-one player-name-field"
+							type="text"
+							value="Player One"
+							maxlength="12"
+						/>
 						<button class="player-one ai-button">AI</button>
 					</div>
 					<div class="mark-buttons-div player-one-marks">
@@ -28,7 +33,12 @@
 				</div>
 				<div class="player-setup-div">
 					<div class="player-field-div">
-						<input class="player-two player-name-field" type="text" value="Player Two" />
+						<input
+							class="player-two player-name-field"
+							type="text"
+							value="Player Two"
+							maxlength="12"
+						/>
 						<button class="player-two ai-button">AI</button>
 					</div>
 					<div class="mark-buttons-div">
@@ -36,15 +46,53 @@
 						<button class="player-two mark-button">O</button>
 					</div>
 				</div>
-                <div class="message">
-                    
-                </div>
+				<div class="message"></div>
 			</div>
 			<div class="game-screen-div">
-                <div class="gameboard">
-
-                </div>
-            </div>
+				<div class="player-info-div">
+					<div class="player-info-columns">
+						<div class="player-name-div column">
+							<p class="player-name-heading">Player</p>
+							<p class="player-name">Player One</p>
+						</div>
+						<div class="player-mark-div column">
+							<p class="player-mark-heading">Mark</p>
+							<p class="player-mark">X</p>
+						</div>
+						<div class="player-score-div column">
+							<p class="player-score-heading">Score</p>
+							<p class="player-score">1</p>
+						</div>
+					</div>
+					<div class="player-info-columns">
+						<div class="player-name-div column">
+							<p class="player-name-heading">Player</p>
+							<p class="player-name">Player One</p>
+						</div>
+						<div class="player-mark-div column">
+							<p class="player-mark-heading">Mark</p>
+							<p class="player-mark">X</p>
+						</div>
+						<div class="player-score-div column">
+							<p class="player-score-heading">Score</p>
+							<p class="player-score">1</p>
+						</div>
+					</div>
+				</div>
+				<div class="gameboard"></div>
+				<div class="game-info-div">
+					<div class="game-info-columns">
+						<div class="round-div column">
+							<p class="round-heading">Round</p>
+							<p id="round">1</p>
+						</div>
+						<div class="turn-div column">
+							<p class="turn-heading">Turn</p>
+							<p id="turn">1</p>
+						</div>
+					</div>
+				</div>
+			</div>
 		</main>
 	</body>
 </html>

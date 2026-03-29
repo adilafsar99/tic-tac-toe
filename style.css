@@ -104,7 +104,41 @@ button.is-ai {
     visibility: none;
 }
 
+.player-info-div {
+    display: flex;
+    justify-content: space-between;
+}
 
+.player-info-columns {
+    display: flex;
+    width: 38%;
+    justify-content: space-between;
+    padding-bottom: 0.3em;
+}
+
+.player-info-columns > .column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.game-info-div {
+    display: flex;
+    justify-content: center;
+    padding-top: 0.3em;
+}
+
+.game-info-columns {
+    width: 80px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.game-info-columns > .column{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
 .gameboard {
     width: 400px;

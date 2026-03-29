@@ -365,7 +365,7 @@ const DisplayController = ((Game) => {
         //gamescreen.style.display = 'block';
     }
 
-    const displayBoard = () => {
+    function displayBoard () {
         const board = [
             ['X', 'O', 'O'],
             ['O', 'X', 'O'],
@@ -382,7 +382,11 @@ const DisplayController = ((Game) => {
         })
     }
 
-    const updateDisplay = () => {
+    function displayPlayers () {
+        
+    }
+
+    function updateDisplay () {
         displayBoard();
     }
 
