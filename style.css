@@ -100,7 +100,6 @@ button.is-ai {
     height: 10px;
     padding-bottom: 1em;
     color: var(--color-red);
-    visibility: none;
 }
 
 .game-screen-div {
@@ -132,7 +131,7 @@ button.is-ai {
 }
 
 .game-info-columns {
-    width: 80px;
+    width: 140px;
     display: flex;
     justify-content: space-between;
 }
@@ -200,4 +199,9 @@ button.is-ai {
 #quit-button:hover {
     color: var(--color-red);
     background-color: var(--color-white);
+}
+
+.winner {
+    font-weight: bold;
+    color: var(--color-green);
 }

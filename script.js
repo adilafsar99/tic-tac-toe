@@ -181,6 +181,7 @@ const Game = ((Player, Board) => {
     let board;
     let turn;
     let round;
+    let draws;
     let gameStatus = {}
 
     const initializePlayers = (playerOneConfig = {}, playerTwoConfig = {}) => {
@@ -210,6 +211,7 @@ const Game = ((Player, Board) => {
         setCurrentPlayer();
         turn = 1;
         round = 1;
+        draws = 0;
         gameStatus.hasPlayerWon = false;
         gameStatus.hasRoundEnded = false;
         gameStatus.hasGameEnded = false;
@@ -234,12 +236,20 @@ const Game = ((Player, Board) => {
     const checkRoundDraw = () => {
         if (Board.checkDraw(board, currentPlayer.getMove(), currentPlayer.getMark())) {
             gameStatus.hasRoundEnded = true;
+            incrementDraws();
+            console.log(draws)
             return true;
         }
         return false;
     }
+    
+    const incrementDraws = () => ++draws;
+
+    const getDraws = () => draws;
 
     const setRoundWinner = () => roundWinner = currentPlayer;
+
+    const getRoundWinner = () => roundWinner;
 
     const getTurn = () => turn;
 
@@ -263,6 +273,8 @@ const Game = ((Player, Board) => {
 
     const setGameWinner = () => gameWinner = currentPlayer;
 
+    const getGameWinner = () => gameWinner;
+
     const continueGame = () => {
         incrementRound();
         board = Board.createBoard();
@@ -275,13 +287,14 @@ const Game = ((Player, Board) => {
 
     const endGame = () => {
         board = [];
-        playerOne = null;
-        playerTwo = null;
+        playerOne = Player();
+        playerTwo = Player();
         currentPlayer = null;
         roundWinner = null;
         gameWinner = null;
         turn = 1;
         round = 1;
+        draws = 0;
         gameStatus = {};
     }
 
@@ -292,7 +305,7 @@ const Game = ((Player, Board) => {
             setRoundWinner();
             if (checkGameWin()) {
                 setGameWinner();
-                endGame();
+                //endGame();
             }
             //continueGame();
         }
@@ -305,7 +318,7 @@ const Game = ((Player, Board) => {
         }
     }
 
-    return { playerOne, playerTwo, gameStatus, getBoard, getCurrentPlayer, getRound, getTurn, startGame, playRound, continueGame, endGame }
+    return { playerOne, playerTwo, gameStatus, getBoard, getCurrentPlayer, getRound, getTurn, getDraws, getRoundWinner, getGameWinner, startGame, playRound, continueGame, endGame }
 
 })(Player, Board);
 
@@ -313,6 +326,8 @@ const Game = ((Player, Board) => {
 
 const DisplayController = ((Game) => {
     const setupScreen = document.querySelector('.setup-screen-div');
+    const playerOneInput = document.querySelector('input.player-one');
+    const playerTwoInput = document.querySelector('input.player-two');
     const aiButtons = document.querySelectorAll('.ai-button');
     aiButtons.forEach(aiButton => aiButton.onclick = toggleAi);
     const markButtons = document.querySelectorAll('.mark-button');
@@ -322,6 +337,12 @@ const DisplayController = ((Game) => {
     const message = document.querySelector('.message');
 
     const gameScreen = document.querySelector('.game-screen-div');
+    const playerOneName = document.querySelector('#player-one-name');
+    const playerOneMark = document.querySelector('#player-one-mark');
+    const playerOneScore = document.querySelector('#player-one-score');
+    const playerTwoName = document.querySelector('#player-two-name');
+    const playerTwoMark = document.querySelector('#player-two-mark');
+    const playerTwoScore = document.querySelector('#player-two-score');
     const gameboard = document.querySelector('.gameboard');
     const continueButton = document.querySelector('#continue-button');
     continueButton.onclick = handleContinuation;
@@ -355,10 +376,8 @@ const DisplayController = ((Game) => {
     }
 
     function startGame(event) {
-        const playerOneInput = document.querySelector('input.player-one');
         const playerOneAiButton = document.querySelector('.player-one.is-ai');
         const playerOneMarkButton = document.querySelector('.player-one.selected-mark');
-        const playerTwoInput = document.querySelector('input.player-two');
         const playerTwoAiButton = document.querySelector('.player-two.is-ai');
         const playerTwoMarkButton = document.querySelector('.player-two.selected-mark');
 
@@ -406,13 +425,6 @@ const DisplayController = ((Game) => {
     }
 
     function displayPlayerStats() {
-        const playerOneName = document.querySelector('#player-one-name');
-        const playerOneMark = document.querySelector('#player-one-mark');
-        const playerOneScore = document.querySelector('#player-one-score');
-        const playerTwoName = document.querySelector('#player-two-name');
-        const playerTwoMark = document.querySelector('#player-two-mark');
-        const playerTwoScore = document.querySelector('#player-two-score');
-
         const playerOne = Game.playerOne;
         const playerTwo = Game.playerTwo;
 
@@ -427,11 +439,23 @@ const DisplayController = ((Game) => {
     function displayGameStats() {
         const round = document.querySelector('#round');
         const turn = document.querySelector('#turn');
+        const draws = document.querySelector('#draws');
         round.textContent = Game.getRound();
         turn.textContent = Game.getTurn();
+        draws.textContent = Game.getDraws();
     }
 
-    function updateDisplay() {
+    function updateDisplay(gameStatus = {}) {
+        if (gameStatus.hasGameEnded) {
+            const winner = Game.getGameWinner();
+            if (winner.getName() === playerOneName) {
+                playerOneName.classList.add('winner');
+            }
+            else {
+                playerTwoName.classList.add('winner');
+            }
+            return;
+        }
         displayBoard();
         displayPlayerStats();
         displayGameStats();
@@ -443,10 +467,14 @@ const DisplayController = ((Game) => {
         updateDisplay();
     }
 
-    function handleQuit () {
+    function handleQuit() {
         Game.endGame();
         gameScreen.style.display = 'none';
-        setupScreen.style.display = 'block';
+        aiButtons.forEach(aiButton => aiButton.classList.remove('is-ai'));
+        markButtons.forEach(markButton => markButton.classList.remove('selected-mark'));
+        playerOneInput.value = 'Player One';
+        playerTwoInput.value = 'Player Two';
+        setupScreen.style.display = 'flex';
     }
 
     function handleBoardClicks(event) {
@@ -461,14 +489,16 @@ const DisplayController = ((Game) => {
         Game.playRound();
         updateDisplay();
         if (gameStatus.hasGameEnded) {
-            console,log(currentPlayer.getName() + ' has won the game.')
+            console.log(currentPlayer.getName() + ' has won the game.');
+            updateDisplay(gameStatus);
         }
         else if (gameStatus.hasPlayerWon) {
             console.log(currentPlayer.getName() + ' has won this round.')
-            continueButton.style.display = 'block';
+            continueButton.style.display = 'block'
         }
         else if (gameStatus.hasRoundEnded) {
             console.log('It\'s a draw.')
+            continueButton.style.display = 'block';
         }
     }
 
