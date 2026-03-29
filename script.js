@@ -20,13 +20,15 @@ const Player = () => {
 
     const setMove = newMove => move = newMove;
 
-    const toggleAi = () => isAi === true ? false : true;
+    const checkAi = () => isAi;
+
+    const toggleAi = () => isAi ? false : true;
 
     const getScore = () => score;
 
     const incrementScore = () => ++score;
 
-    return { getName, setName, getMark, setMark, getMove, setMove, toggleAi, getScore, incrementScore };
+    return { getName, setName, getMark, setMark, getMove, setMove, checkAi, toggleAi, getScore, incrementScore };
 
 };
 
@@ -180,27 +182,35 @@ const Game = ((Player, Board) => {
     let turn;
     let round;
 
-    const initializePlayers = (player1Config = {}, player2Config = {}) => {
-        playerOne.setName(player1Config.name);
-        playerOne.setMark(player1Config.mark);
-        playerTwo.setName(player2Config.name);
-        playerTwo.setMark(player2Config.mark);
+    const initializePlayers = (playerOneConfig = {}, playerTwoConfig = {}) => {
+        playerOne.setName(playerOneConfig.name);
+        playerOne.setMark(playerOneConfig.mark);
+        if (playerOneConfig.isAi) {
+            playerOne.toggleAi();
+        }
+        playerTwo.setName(playerTwoConfig.name);
+        playerTwo.setMark(playerTwoConfig.mark);
+        if (playerTwoConfig.isAi) {
+            playerTwo.toggleAi();
+        }
     }
+
+    const getCurrentPlayer = () => currentPlayer;
 
     const setCurrentPlayer = () => {
         currentPlayer = playerOne.getMark() === 'X' ? playerOne : playerTwo;
     }
 
-    const startGame = (player1Config, player2Config) => {
+    const startGame = (playerOneConfig, playerTwoConfig) => {
         board = Board.createBoard();
-        initializePlayers(player1Config, player2Config);
+        initializePlayers(playerOneConfig, playerTwoConfig);
         setCurrentPlayer();
         turn = 1;
         round = 1;
     }
 
     const makeMove = () => {
-        if (currentPlayer.isAi) {
+        if (currentPlayer.checkAi()) {
             // Use minimax algorithm
         }
         else {
@@ -276,13 +286,19 @@ const Game = ((Player, Board) => {
         }
     }
 
-    return { playerOne, playerTwo, currentPlayer, startGame, playRound, continueGame, endGame }
+    return { playerOne, playerTwo, getCurrentPlayer, startGame, playRound, continueGame, endGame }
 
 })(Player, Board);
 
 /* The module to implement the UI of the game */
 
 const DisplayController = ((Game) => {
+    const toggleAi = (event) => {
+        const playerAi = event.target;
+        playerAi.classList.toggle('is-ai');
+    }
+
+
     const selectMark = (event) => {
         const playerMark = event.target;
         const markButtons = playerMark.parentElement.children;
@@ -303,16 +319,48 @@ const DisplayController = ((Game) => {
             }
         }
     }
-    
-    const toggleAi = (event) => {
-       const playerAi = event.target;
-       playerAi.classList.toggle('isAi');S
+
+    const startGame = (event) => {
+        const playerOneInput = document.querySelector('input.player-one');
+        const playerOneAiButton = document.querySelector('.player-one.is-ai');
+        const playerOneMarkButton = document.querySelector('.player-one.selected-mark');
+        const playerTwoInput = document.querySelector('input.player-two');
+        const playerTwoAiButton = document.querySelector('.player-two.is-ai');
+        const playerTwoMarkButton = document.querySelector('.player-two.selected-mark');
+
+        if (!playerOneMarkButton || !playerTwoMarkButton) {
+            message.textContent = 'Select players\' marks to start the game!';
+            return;
+        }
+        message.textContent = '';
+        const playerOneName = playerOneInput.value === '' ? 'Player One' : playerOneInput.value;
+        const playerTwoName = playerTwoInput.value === '' ? 'Player Two' : playerTwoInput.value;
+        const playerOneAi = playerOneAiButton ? true : false;
+        const playerTwoAi = playerTwoAiButton ? true : false;
+        const playerOneMark = playerOneMarkButton.textContent;
+        const playerTwoMark = playerTwoMarkButton.textContent;
+        const playerOneConfig = {
+            name: playerOneName,
+            mark: playerOneMark,
+            isAi: playerOneAi
+        };
+        const playerTwoConfig = {
+            name: playerTwoName,
+            mark: playerTwoMark,
+            isAi: playerTwoAi
+        };
+        Game.startGame(playerOneConfig, playerTwoConfig);
+        setupScreen.style.display = 'none';
+        //gamescreen.style.display = 'block';
     }
     
+    const setupScreen = document.querySelector('.setup-screen-div');
     const aiButtons = document.querySelectorAll('.ai-button');
     aiButtons.forEach(aiButton => aiButton.onclick = toggleAi);
     const markButtons = document.querySelectorAll('.mark-button');
     markButtons.forEach(markButton => markButton.onclick = selectMark)
-
+    const startButton = document.querySelector('#start-button');
+    startButton.onclick = startGame;
+    const message = document.querySelector('.message');
 
 })(Game)

@@ -53,6 +53,7 @@ input, button {
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
+    display: none;
 }
 
 .player-field-div {
@@ -87,6 +88,29 @@ button.selected-mark {
     background-color: var(--color-white);
 }
 
+button.is-ai {
+    color: var(--color-red);
+    background-color: var(--color-white);
+}
+
 #start-button {
     background-color: var(--color-green);
+}
+
+.message {
+    height: 10px;
+    padding-bottom: 1em;
+    color: var(--color-red);
+    visibility: none;
+}
+
+.game-screen-div {
+
+}
+
+.gameboard {
+    width: 400px;
+    min-width: 80%;
+    height: 400px;
+    border: 2px solid var(--color-grey);
 }
