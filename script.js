@@ -181,6 +181,7 @@ const Game = ((Player, Board) => {
     let board;
     let turn;
     let round;
+    let gameStatus = {}
 
     const initializePlayers = (playerOneConfig = {}, playerTwoConfig = {}) => {
         playerOne.setName(playerOneConfig.name);
@@ -209,6 +210,9 @@ const Game = ((Player, Board) => {
         setCurrentPlayer();
         turn = 1;
         round = 1;
+        gameStatus.hasPlayerWon = false;
+        gameStatus.hasRoundEnded = false;
+        gameStatus.hasGameEnded = false;
     }
     const makeMove = () => {
         if (currentPlayer.checkAi()) {
@@ -221,13 +225,18 @@ const Game = ((Player, Board) => {
 
     const checkRoundWin = () => {
         if (Board.checkBoard(board, currentPlayer.getMark())) {
+            gameStatus.hasPlayerWon = true;
             return true;
         }
         return false;
     }
 
     const checkRoundDraw = () => {
-        return Board.checkDraw(board, currentPlayer.getMove(), currentPlayer.getMark());
+        if (Board.checkDraw(board, currentPlayer.getMove(), currentPlayer.getMark())) {
+            gameStatus.hasRoundEnded = true;
+            return true;
+        }
+        return false;
     }
 
     const setRoundWinner = () => roundWinner = currentPlayer;
@@ -246,6 +255,7 @@ const Game = ((Player, Board) => {
 
     const checkGameWin = () => {
         if (currentPlayer.getScore() === 3) {
+            gameStatus.hasGameEnded = true;
             return true;
         }
         return false;
@@ -258,6 +268,9 @@ const Game = ((Player, Board) => {
         board = Board.createBoard();
         Board.resetMatchingPattern;
         turn = 1;
+        gameStatus.hasPlayerWon = false;
+        gameStatus.hasRoundEnded = false;
+        gameStatus.hasGameEnded = false;
     }
 
     const endGame = () => {
@@ -269,6 +282,7 @@ const Game = ((Player, Board) => {
         gameWinner = null;
         turn = 1;
         round = 1;
+        gameStatus = {};
     }
 
     const playRound = () => {
@@ -280,10 +294,10 @@ const Game = ((Player, Board) => {
                 setGameWinner();
                 endGame();
             }
-            continueGame();
+            //continueGame();
         }
         else if (checkRoundDraw()) {
-            continueGame();
+            //continueGame();
         }
         else {
             incrementTurn();
@@ -291,7 +305,7 @@ const Game = ((Player, Board) => {
         }
     }
 
-    return { playerOne, playerTwo, getBoard, getCurrentPlayer, getRound, getTurn, startGame, playRound, continueGame, endGame }
+    return { playerOne, playerTwo, gameStatus, getBoard, getCurrentPlayer, getRound, getTurn, startGame, playRound, continueGame, endGame }
 
 })(Player, Board);
 
@@ -309,6 +323,10 @@ const DisplayController = ((Game) => {
 
     const gameScreen = document.querySelector('.game-screen-div');
     const gameboard = document.querySelector('.gameboard');
+    const continueButton = document.querySelector('#continue-button');
+    continueButton.onclick = handleContinuation;
+    const quitButton = document.querySelector('#quit-button');
+    quitButton.onclick = handleQuit;
 
     function toggleAi(event) {
         const playerAi = event.target;
@@ -374,7 +392,6 @@ const DisplayController = ((Game) => {
     function displayBoard() {
         gameboard.innerHTML = '';
         const board = Game.getBoard();
-        console.log(board)
         board.forEach((row, rowIndex) => {
             row.forEach((column, columnIndex) => {
                 const cell = document.createElement('button');
@@ -420,15 +437,39 @@ const DisplayController = ((Game) => {
         displayGameStats();
     }
 
+    function handleContinuation() {
+        continueButton.style.display = 'none';
+        Game.continueGame();
+        updateDisplay();
+    }
+
+    function handleQuit () {
+        Game.endGame();
+        gameScreen.style.display = 'none';
+        setupScreen.style.display = 'block';
+    }
+
     function handleBoardClicks(event) {
         const cell = event.target;
         const move = { row: cell.dataset.row, column: cell.dataset.column };
 
         const currentPlayer = Game.getCurrentPlayer();
+        const gameStatus = Game.gameStatus;
+        console.log(gameStatus)
 
         currentPlayer.setMove(move);
         Game.playRound();
         updateDisplay();
+        if (gameStatus.hasGameEnded) {
+            console,log(currentPlayer.getName() + ' has won the game.')
+        }
+        else if (gameStatus.hasPlayerWon) {
+            console.log(currentPlayer.getName() + ' has won this round.')
+            continueButton.style.display = 'block';
+        }
+        else if (gameStatus.hasRoundEnded) {
+            console.log('It\'s a draw.')
+        }
     }
 
 

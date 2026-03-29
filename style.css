@@ -170,3 +170,34 @@ button.is-ai {
     background-color: var(--color-grey);
     border-color: var(--color-white);
 }
+
+.option-buttons-div {
+    display: flex;
+    justify-content: center;
+}
+
+.option-button {
+    color: var(--color-white);
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#continue-button {
+    background-color: var(--color-green);
+    margin-bottom: 0.3em;
+    display: none;
+}
+
+#continue-button:hover {
+    color: var(--color-green);
+    background-color: var(--color-white);
+}
+
+#quit-button {
+    background-color: var(--color-red);
+}
+
+#quit-button:hover {
+    color: var(--color-red);
+    background-color: var(--color-white);
+}
