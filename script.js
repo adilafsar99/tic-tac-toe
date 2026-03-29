@@ -304,13 +304,13 @@ const DisplayController = ((Game) => {
 
     const gameboard = document.querySelector('.gameboard');
 
-    
-    function toggleAi (event) {
+
+    function toggleAi(event) {
         const playerAi = event.target;
         playerAi.classList.toggle('is-ai');
     }
 
-    function selectMark (event) {
+    function selectMark(event) {
         const playerMark = event.target;
         const markButtons = playerMark.parentElement.children;
         // Adding viusal style to the selected button
@@ -331,7 +331,7 @@ const DisplayController = ((Game) => {
         }
     }
 
-    function startGame (event) {
+    function startGame(event) {
         const playerOneInput = document.querySelector('input.player-one');
         const playerOneAiButton = document.querySelector('.player-one.is-ai');
         const playerOneMarkButton = document.querySelector('.player-one.selected-mark');
@@ -365,7 +365,7 @@ const DisplayController = ((Game) => {
         //gamescreen.style.display = 'block';
     }
 
-    function displayBoard () {
+    function displayBoard() {
         const board = [
             ['X', 'O', 'O'],
             ['O', 'X', 'O'],
@@ -375,21 +375,38 @@ const DisplayController = ((Game) => {
             row.forEach(column => {
                 const cell = document.createElement('button');
                 cell.classList.add('cell');
-                cell.dataset.position = {row, column};
+                cell.dataset.position = { row, column };
                 cell.textContent = column;
                 gameboard.appendChild(cell);
             })
         })
     }
 
-    function displayPlayers () {
-        
+    function displayPlayerStats() {
+        const playerOne = { name: 'S', mark: 'O', score: '3' }
+        const playerTwo = { name: 'D', mark: 'X', score: '9' }
+
+
+        const playerOneName = document.querySelector('#player-one-name');
+        const playerOneMark = document.querySelector('#player-one-mark');
+        const playerOneScore = document.querySelector('#player-one-score');
+        const playerTwoName = document.querySelector('#player-two-name');
+        const playerTwoMark = document.querySelector('#player-two-mark');
+        const playerTwoScore = document.querySelector('#player-two-score');
+
+        playerOneName.textContent = playerOne.name;
+        playerOneMark.textContent = playerOne.mark;
+        playerOneScore.textContent = playerOne.score;
+        playerTwoName.textContent = playerTwo.name;
+        playerTwoMark.textContent = playerTwo.mark;
+        playerTwoScore.textContent = playerTwo.score;
     }
 
-    function updateDisplay () {
+    function updateDisplay() {
         displayBoard();
+        displayPlayerStats();
     }
 
     updateDisplay()
-    
+
 })(Game);
