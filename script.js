@@ -58,6 +58,13 @@ const Board = (() => {
         return false;
     }
 
+    const checkMove = (board, move) => {
+        if (board[move.row][move.column] !== 'X'&& board[move.row][move.column] !== 'O') {
+            return true;
+        }
+        return false;
+    }
+
     const makeMove = (board, move, mark) => {
         if (board[move.row][move.column] === null) {
             board[move.row][move.column] = mark;
@@ -168,7 +175,7 @@ const Board = (() => {
 
     const resetMatchingPattern = () => matchingPattern = [];
 
-    return { createBoard, cloneBoard, isEmpty, makeMove, checkBoard, checkRows, checkColumns, checkDiagonals, checkDraw, getMatchingPattern, resetMatchingPattern }
+    return { createBoard, cloneBoard, isEmpty, checkMove, makeMove, checkBoard, checkRows, checkColumns, checkDiagonals, checkDraw, getMatchingPattern, resetMatchingPattern }
 
 })();
 
@@ -219,6 +226,10 @@ const Game = ((Player, Board) => {
         gameStatus.hasGameEnded = false;
     }
 
+    const checkMove = () => {
+        return Board.checkMove(board, currentPlayer.getMove());
+    }
+
     const makeMove = () => {
         if (currentPlayer.checkAi()) {
             // Use minimax algorithm
@@ -229,7 +240,7 @@ const Game = ((Player, Board) => {
     }
 
     const setMatchingPattern = () => {
-        matchingPattern =  Board.getMatchingPattern();
+        matchingPattern = Board.getMatchingPattern();
     }
 
     const getMatchingPattern = () => matchingPattern;
@@ -322,18 +333,20 @@ const Game = ((Player, Board) => {
 
     const playRound = () => {
         if (!checkRoundWin() && !checkRoundDraw()) {
-            makeMove();
-            if (checkRoundWin()) {
-                currentPlayer.incrementScore();
-                setRoundWinner();
-                if (checkGameWin()) {
-                    setGameWinner();
+            if (checkMove()) {
+                makeMove();
+                if (checkRoundWin()) {
+                    currentPlayer.incrementScore();
+                    setRoundWinner();
+                    if (checkGameWin()) {
+                        setGameWinner();
+                    }
                 }
-            }
-            else {
-                if (!checkRoundDraw()) {
-                    incrementTurn();
-                    switchCurrentPlayer();
+                else {
+                    if (!checkRoundDraw()) {
+                        incrementTurn();
+                        switchCurrentPlayer();
+                    }
                 }
             }
         }
@@ -470,7 +483,6 @@ const DisplayController = ((Game) => {
     function displayMatchingPattern() {
         const matchingPattern = Game.getMatchingPattern();
         const cells = document.querySelectorAll('.cell');
-        const cellsArray = Array.from(cells);
         matchingPattern.forEach(pattern => {
             cells.forEach(cell => {
                 let position = { row: cell.dataset.row, column: cell.dataset.column };
@@ -484,9 +496,6 @@ const DisplayController = ((Game) => {
     function updateDisplay(gameStatus = {}) {
         if (gameStatus.hasGameEnded) {
             const winner = Game.getGameWinner();
-            console.log(winner.getName())
-            console.log(playerOneName)
-            console.log(playerTwoName)
             if (winner.getName() === playerOneName.textContent) {
                 playerOneName.classList.add('winner');
             }
@@ -529,16 +538,16 @@ const DisplayController = ((Game) => {
         currentPlayer.setMove(move);
         Game.playRound();
         updateDisplay();
-        if (gameStatus.hasGameEnded) {
-            console.log(currentPlayer.getName() + ' has won the game.');
-            updateDisplay(gameStatus);
-        }
-        else if (gameStatus.hasPlayerWon) {
+        if (gameStatus.hasPlayerWon) {
             console.log(currentPlayer.getName() + ' has won this round.')
             displayMatchingPattern()
             continueButton.style.display = 'block'
         }
-        else if (gameStatus.isDraw) {
+        if (gameStatus.hasGameEnded) {
+            console.log(currentPlayer.getName() + ' has won the game.');
+            updateDisplay(gameStatus);
+        }
+        if (gameStatus.isDraw) {
             console.log('It\'s a draw.')
             continueButton.style.display = 'block';
         }
