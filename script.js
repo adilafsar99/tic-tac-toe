@@ -50,7 +50,7 @@ const Board = (() => {
         return board;
     }
 
-    const cloneBoard = () => {
+    const cloneBoard = (board) => {
         return board.map(row => [...row]);
     }
 
@@ -185,6 +185,86 @@ const Board = (() => {
     return { createBoard, cloneBoard, isEmpty, checkMove, makeMove, checkBoard, checkRows, checkColumns, checkDiagonals, checkDraw, getMatchingPattern, resetMatchingPattern }
 
 })();
+
+const Ai = ((Board) => {
+    const evalBoard = (board, minMark, maxMark) => {
+        if (Board.checkBoard(board, maxMark)) {
+            return 1;
+        }
+        else if (Board.checkBoard(board, minMark)) {
+            return -1;
+        }
+        else {
+            return 0;
+        }
+
+    }
+    
+    const minimax = (board, depth, isMax, minMark, maxMark) => {
+        if (depth === 0 || !Board.isEmpty(board)) {
+            return evalBoard(board, minMark, maxMark);
+        }
+        let score;
+        let move;
+        if (isMax) {
+            let bestScore = -Infinity;
+            board.forEach((row, rowIndex) => {
+                row.forEach((cell, cellIndex) => {
+                    move = { row: rowIndex, column: cellIndex };
+                    if (cell === null) {
+                        board[move.row][move.column] = maxMark;
+                        let clonedBoard = Board.cloneBoard(board);
+                        score = minimax(clonedBoard, depth - 1, false, minMark, maxMark);
+                        board[move.row][move.column] = null;
+                        bestScore = Math.max(score, bestScore);
+                    }
+                })
+            })
+            return bestScore;
+        }
+        else {
+            let bestScore = Infinity;
+            board.forEach((row, rowIndex) => {
+                row.forEach((cell, cellIndex) => {
+                    move = { row: rowIndex, column: cellIndex };
+                    if (cell === null) {
+                        board[move.row][move.column] = minMark;
+                        let clonedBoard = Board.cloneBoard(board);
+                        score = minimax(clonedBoard, depth - 1, true, minMark, maxMark);
+                        board[move.row][move.column] = null;
+                        bestScore = Math.min(score, bestScore);
+                    }
+                })
+            })
+            return bestScore;
+        }
+        
+    }
+
+    const findBestMove = (board, maxMark) => {
+        let score;
+        let bestScore = -Infinity;
+        let move;
+        let bestMove;
+        board.forEach((row, rowIndex) => {
+            row.forEach((cell, cellIndex) => {
+                move = { row: rowIndex, column: cellIndex };
+                if (cell === null) {
+                    board[move.row][move.column] = maxMark;
+                    let clonedBoard = Board.cloneBoard(board);
+                    let minMark = maxMark === 'X' ? 'O' : 'X';
+                    score = minimax(clonedBoard, 2, false, minMark, maxMark);
+                    board[move.row][move.column] = null;
+                    if (score >= bestScore) {                     
+                        bestScore = score;
+                        bestMove = move;
+                    }
+                }
+            })
+        })
+        return bestMove;
+    }
+})(Board);
 
 const Game = ((Player, Board) => {
     let playerOne = Player();
@@ -329,10 +409,7 @@ const Game = ((Player, Board) => {
         board = Board.createBoard();
         resetMatchingPattern();
         turn = 1;
-        gameStatus.hasPlayerWon = false;
-        gameStatus.isDraw = false;
-        gameStatus.hasRoundEnded = false;
-        gameStatus.hasGameEnded = false;
+        setGameStatus();
     }
 
     const endGame = () => {
@@ -345,7 +422,7 @@ const Game = ((Player, Board) => {
         gameWinner = null;
         turn = 1;
         round = 1;
-        draws = 0;       
+        draws = 0;
     }
 
     const playRound = () => {
