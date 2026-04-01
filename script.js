@@ -22,7 +22,7 @@ const Player = () => {
 
     const checkAi = () => isAi;
 
-    const toggleAi = () => isAi ? false : true;
+    const toggleAi = () => isAi = isAi ? false : true;
 
     const getScore = () => score;
 
@@ -264,12 +264,13 @@ const Ai = ((Board) => {
         })
         return bestMove;
     }
+    return {findBestMove}
 })(Board);
 
-const Game = ((Player, Board) => {
+const Game = ((Player, Board, Ai) => {
     let playerOne = Player();
     let playerTwo = Player();
-    let currentPlayer;
+    let currentPlayer = {};
     let roundWinner;
     let gameWinner;
     let board;
@@ -329,11 +330,9 @@ const Game = ((Player, Board) => {
 
     const makeMove = () => {
         if (currentPlayer.checkAi()) {
-            // Use minimax algorithm
+            currentPlayer.setMove(Ai.findBestMove(board, currentPlayer.getMove()));
         }
-        else {
-            Board.makeMove(board, currentPlayer.getMove(), currentPlayer.getMark());
-        }
+        Board.makeMove(board, currentPlayer.getMove(), currentPlayer.getMark());
     }
 
     const setMatchingPattern = () => {
@@ -448,7 +447,7 @@ const Game = ((Player, Board) => {
 
     return { playerOne, playerTwo, gameStatus, getBoard, getCurrentPlayer, getRound, getTurn, getDraws, getRoundWinner, getGameWinner, getMatchingPattern, startGame, playRound, continueGame, endGame }
 
-})(Player, Board);
+})(Player, Board, Ai);
 
 /* The module to implement the UI of the game */
 
@@ -479,7 +478,7 @@ const DisplayController = ((Game) => {
     const quitButton = document.querySelector('#quit-button');
     quitButton.onclick = handleQuit;
 
-    /* Game module properties and methods necessary for the UI */
+    /* Game module properties necessary for the UI */
     const playerOne = Game.playerOne;
     const playerTwo = Game.playerTwo;
 
@@ -572,9 +571,13 @@ const DisplayController = ((Game) => {
         const round = document.querySelector('#round');
         const turn = document.querySelector('#turn');
         const draws = document.querySelector('#draws');
+        const currentPlayerMark = document.querySelector('#current-player');
+        const currentPlayerStatus = document.querySelector('#current-player-status');
         round.textContent = Game.getRound();
         turn.textContent = Game.getTurn();
         draws.textContent = Game.getDraws();
+        currentPlayerMark.textContent = Game.getCurrentPlayer().getMark();
+        currentPlayerStatus.textContent = Game.getCurrentPlayer().checkAi() === true ? 'AI' : 'Human';
     }
 
     function displayMatchingPattern() {

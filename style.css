@@ -131,7 +131,7 @@ button.is-ai {
 }
 
 .game-info-columns {
-    width: 140px;
+    width: 100%;
     display: flex;
     justify-content: space-between;
 }
@@ -170,7 +170,7 @@ button.is-ai {
     border-color: var(--color-white);
 }
 
-.option-buttons-div {
+.quit-button-div {
     display: flex;
     justify-content: center;
 }
