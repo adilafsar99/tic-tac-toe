@@ -186,88 +186,81 @@ const Board = (() => {
 
 })();
 
-const Ai = ((Board) => {
-    const evalBoard = (board, minMark, maxMark) => {
-        if (Board.checkBoard(board, maxMark)) {
-            return 1;
-        }
-        else if (Board.checkBoard(board, minMark)) {
-            return -1;
-        }
-        else {
-            return 0;
-        }
+// const Ai = ((Board) => {
+//     const evalBoard = (board, minMark, maxMark) => {
+//         if (Board.checkBoard(board, maxMark)) {
+//             return 1;
+//         }
+//         else if (Board.checkBoard(board, minMark)) {
+//             return -1;
+//         }
+//         else if (!Board.isEmpty(board)) {
+//             return 0;
+//         }
+//     }
 
-    }
-    
-    const minimax = (board, depth, isMax, minMark, maxMark) => {
-        if (depth === 0 || !Board.isEmpty(board)) {
-            return evalBoard(board, minMark, maxMark);
-        }
-        let score;
-        let move;
-        if (isMax) {
-            let bestScore = -Infinity;
-            board.forEach((row, rowIndex) => {
-                row.forEach((cell, cellIndex) => {
-                    move = { row: rowIndex, column: cellIndex };
-                    if (cell === null) {
-                        board[move.row][move.column] = maxMark;
-                        let clonedBoard = Board.cloneBoard(board);
-                        score = minimax(clonedBoard, depth - 1, false, minMark, maxMark);
-                        board[move.row][move.column] = null;
-                        bestScore = Math.max(score, bestScore);
-                    }
-                })
-            })
-            return bestScore;
-        }
-        else {
-            let bestScore = Infinity;
-            board.forEach((row, rowIndex) => {
-                row.forEach((cell, cellIndex) => {
-                    move = { row: rowIndex, column: cellIndex };
-                    if (cell === null) {
-                        board[move.row][move.column] = minMark;
-                        let clonedBoard = Board.cloneBoard(board);
-                        score = minimax(clonedBoard, depth - 1, true, minMark, maxMark);
-                        board[move.row][move.column] = null;
-                        bestScore = Math.min(score, bestScore);
-                    }
-                })
-            })
-            return bestScore;
-        }
-        
-    }
+//     const minimax = (board, depth, alpha, beta, isMax, minMark, maxMark) => {
+//         let score = evalBoard(board, minMark, maxMark);
+//         if (typeof score === 'number') {
+//             return score;
+//         }
+//         if (isMax) {
+//             let bestScore = -Infinity;
+//             for (let row = 0; row < board.length; row++) {
+//                 for (let column = 0; column < board[row].length; column++) {
+//                     if (board[row][column] === null) {
+//                         let clonedBoard = Board.cloneBoard(board);
+//                         clonedBoard[row][column] = maxMark;
+//                         score = minimax(clonedBoard, depth - 1, !isMax, alpha, beta, minMark, maxMark);
+//                         bestScore = Math.max(score, bestScore);
 
-    const findBestMove = (board, maxMark) => {
-        let score;
-        let bestScore = -Infinity;
-        let move;
-        let bestMove;
-        board.forEach((row, rowIndex) => {
-            row.forEach((cell, cellIndex) => {
-                move = { row: rowIndex, column: cellIndex };
-                if (cell === null) {
-                    board[move.row][move.column] = maxMark;
-                    let clonedBoard = Board.cloneBoard(board);
-                    let minMark = maxMark === 'X' ? 'O' : 'X';
-                    score = minimax(clonedBoard, 2, false, minMark, maxMark);
-                    board[move.row][move.column] = null;
-                    if (score >= bestScore) {                     
-                        bestScore = score;
-                        bestMove = move;
-                    }
-                }
-            })
-        })
-        return bestMove;
-    }
-    return {findBestMove}
-})(Board);
+//                     }
+//                 }
+//             }
+//             return bestScore;
+//         }
+//         else {
+//             let bestScore = Infinity;
+//             for (let row = 0; row < board.length; row++) {
+//                 for (let column = 0; board[row].length; column++) {
+//                     if (board[row][column] === null) {
+//                         let clonedBoard = Board.cloneBoard(board);
+//                         clonedBoard[row][column] = minMark;
+//                         score = minimax(clonedBoard, depth - 1, !isMax, alpha, beta, minMark, maxMark);
+//                         bestScore = Math.min(score, bestScore);
 
-const Game = ((Player, Board, Ai) => {
+//                     }
+//                 }
+//             }
+//             return bestScore;
+//         }
+
+//     }
+
+//     const findBestMove = (board, maxMark) => {
+//         let bestScore = -Infinity;
+//         let bestMove = null;
+//         board.forEach((row, rowIndex) => {
+//             row.forEach((cell, cellIndex) => {
+//                 let move = { row: rowIndex, column: cellIndex };
+//                 if (cell === null) {
+//                     let clonedBoard = Board.cloneBoard(board);
+//                     clonedBoard[move.row][move.column] = maxMark;
+//                     let minMark = maxMark === 'X' ? 'O' : 'X';
+//                     let score = minimax(clonedBoard, 2, false, -Infinity, Infinity, minMark, maxMark);
+//                     if (score > bestScore) {
+//                         bestScore = score;
+//                         bestMove = move;
+//                     }
+//                 }
+//             })
+//         })
+//         return bestMove;
+//     }
+//     return { findBestMove }
+// })(Board);
+
+const Game = ((Player, Board) => {
     let playerOne = Player();
     let playerTwo = Player();
     let currentPlayer = {};
@@ -283,15 +276,14 @@ const Game = ((Player, Board, Ai) => {
     const initializePlayers = (playerOneConfig = {}, playerTwoConfig = {}) => {
         playerOne.setName(playerOneConfig.name);
         playerOne.setMark(playerOneConfig.mark);
-        if (playerOneConfig.isAi) {
-            playerOne.toggleAi();
-            console.log(playerOne.checkAi())
-        }
+        // if (playerOneConfig.isAi) {
+        //     playerOne.toggleAi();
+        // }
         playerTwo.setName(playerTwoConfig.name);
         playerTwo.setMark(playerTwoConfig.mark);
-        if (playerTwoConfig.isAi) {
-            playerTwo.toggleAi();
-        }
+        // if (playerTwoConfig.isAi) {
+        //     playerTwo.toggleAi();
+        // }
     }
 
     const resetPlayers = () => {
@@ -329,9 +321,9 @@ const Game = ((Player, Board, Ai) => {
     }
 
     const makeMove = () => {
-        if (currentPlayer.checkAi()) {
-            currentPlayer.setMove(Ai.findBestMove(board, currentPlayer.getMove()));
-        }
+        // if (currentPlayer.checkAi()) {
+        //     currentPlayer.setMove(Ai.findBestMove(board, currentPlayer.getMark()));
+        // }   
         Board.makeMove(board, currentPlayer.getMove(), currentPlayer.getMark());
     }
 
@@ -355,6 +347,10 @@ const Game = ((Player, Board, Ai) => {
         return false;
     }
 
+    const setRoundWinner = () => roundWinner = currentPlayer;
+
+    const getRoundWinner = () => roundWinner;
+
     const checkRoundDraw = () => {
         if (Board.checkDraw(board, currentPlayer.getMove(), currentPlayer.getMark())) {
             gameStatus.isDraw = true;
@@ -369,21 +365,12 @@ const Game = ((Player, Board, Ai) => {
 
     const getDraws = () => draws;
 
-    const setRoundWinner = () => roundWinner = currentPlayer;
-
-    const getRoundWinner = () => roundWinner;
-
     const getTurn = () => turn;
 
     const incrementTurn = () => ++turn;
 
     const switchCurrentPlayer = () => {
-        if (turn === 1) {
-            setCurrentPlayer();
-        }
-        else {
-            currentPlayer = currentPlayer === playerOne ? playerTwo : playerOne;
-        }
+        currentPlayer = currentPlayer === playerOne ? playerTwo : playerOne;
     }
 
     const getRound = () => round;
@@ -393,7 +380,6 @@ const Game = ((Player, Board, Ai) => {
     const checkGameWin = () => {
         if (currentPlayer.getScore() === 3) {
             gameStatus.hasGameEnded = true;
-            console.log('It\'s you')
             return true;
         }
         return false;
@@ -409,6 +395,15 @@ const Game = ((Player, Board, Ai) => {
         resetMatchingPattern();
         turn = 1;
         setGameStatus();
+        if (!roundWinner) {
+            setCurrentPlayer()
+        }
+        else if (roundWinner.getName() === playerOne.getName()) {
+            currentPlayer = playerTwo;
+        }
+        else {
+            currentPlayer = playerOne;
+        }
     }
 
     const endGame = () => {
@@ -429,8 +424,8 @@ const Game = ((Player, Board, Ai) => {
             if (checkMove()) {
                 makeMove();
                 if (checkRoundWin()) {
-                    currentPlayer.incrementScore();
                     setRoundWinner();
+                    currentPlayer.incrementScore();
                     if (checkGameWin()) {
                         setGameWinner();
                     }
@@ -445,9 +440,9 @@ const Game = ((Player, Board, Ai) => {
         }
     }
 
-    return { playerOne, playerTwo, gameStatus, getBoard, getCurrentPlayer, getRound, getTurn, getDraws, getRoundWinner, getGameWinner, getMatchingPattern, startGame, playRound, continueGame, endGame }
+    return { playerOne, playerTwo, gameStatus, getBoard, getCurrentPlayer, getRound, getTurn, getDraws, getGameWinner, getMatchingPattern, startGame, playRound, continueGame, endGame }
 
-})(Player, Board, Ai);
+})(Player, Board);
 
 /* The module to implement the UI of the game */
 
@@ -456,8 +451,8 @@ const DisplayController = ((Game) => {
     const setupScreen = document.querySelector('.setup-screen-div');
     const playerOneInput = document.querySelector('input.player-one');
     const playerTwoInput = document.querySelector('input.player-two');
-    const aiButtons = document.querySelectorAll('.ai-button');
-    aiButtons.forEach(aiButton => aiButton.onclick = toggleAi);
+    //const aiButtons = document.querySelectorAll('.ai-button');
+    //aiButtons.forEach(aiButton => aiButton.onclick = toggleAi);
     const markButtons = document.querySelectorAll('.mark-button');
     markButtons.forEach(markButton => markButton.onclick = selectMark)
     const startButton = document.querySelector('#start-button');
@@ -481,11 +476,11 @@ const DisplayController = ((Game) => {
     /* Game module properties necessary for the UI */
     const playerOne = Game.playerOne;
     const playerTwo = Game.playerTwo;
-
-    function toggleAi(event) {
-        const playerAi = event.target;
-        playerAi.classList.toggle('is-ai');
-    }
+    
+    // function toggleAi(event) {
+    //     const playerAi = event.target;
+    //     playerAi.classList.toggle('is-ai');
+    // }
 
     function selectMark(event) {
         const playerMark = event.target;
@@ -508,10 +503,10 @@ const DisplayController = ((Game) => {
         }
     }
 
-    function startGame(event) {
-        const playerOneAiButton = document.querySelector('.player-one.is-ai');
+    function startGame() {
+        //const playerOneAiButton = document.querySelector('.player-one.is-ai');
         const playerOneMarkButton = document.querySelector('.player-one.selected-mark');
-        const playerTwoAiButton = document.querySelector('.player-two.is-ai');
+        //const playerTwoAiButton = document.querySelector('.player-two.is-ai');
         const playerTwoMarkButton = document.querySelector('.player-two.selected-mark');
 
         if (!playerOneMarkButton || !playerTwoMarkButton) {
@@ -522,19 +517,19 @@ const DisplayController = ((Game) => {
         message.textContent = '';
         const playerOneName = playerOneInput.value === '' ? 'Player One' : playerOneInput.value;
         const playerTwoName = playerTwoInput.value === '' ? 'Player Two' : playerTwoInput.value;
-        const playerOneAi = playerOneAiButton ? true : false;
-        const playerTwoAi = playerTwoAiButton ? true : false;
+        //const playerOneAi = playerOneAiButton ? true : false;
+        //const playerTwoAi = playerTwoAiButton ? true : false;
         const playerOneMark = playerOneMarkButton.textContent;
         const playerTwoMark = playerTwoMarkButton.textContent;
         const playerOneConfig = {
             name: playerOneName,
             mark: playerOneMark,
-            isAi: playerOneAi
+            //isAi: playerOneAi
         };
         const playerTwoConfig = {
             name: playerTwoName,
             mark: playerTwoMark,
-            isAi: playerTwoAi
+            //isAi: playerTwoAi
         };
         Game.startGame(playerOneConfig, playerTwoConfig);
         setupScreen.style.display = 'none';
@@ -552,7 +547,7 @@ const DisplayController = ((Game) => {
                 cell.dataset.row = rowIndex;
                 cell.dataset.column = columnIndex;
                 cell.textContent = column;
-                cell.onclick = handleBoardClicks;
+                cell.onclick = playRound;
                 gameboard.appendChild(cell);
             })
         })
@@ -572,12 +567,12 @@ const DisplayController = ((Game) => {
         const turn = document.querySelector('#turn');
         const draws = document.querySelector('#draws');
         const currentPlayerMark = document.querySelector('#current-player');
-        const currentPlayerStatus = document.querySelector('#current-player-status');
+        //const currentPlayerStatus = document.querySelector('#current-player-status');
         round.textContent = Game.getRound();
         turn.textContent = Game.getTurn();
         draws.textContent = Game.getDraws();
         currentPlayerMark.textContent = Game.getCurrentPlayer().getMark();
-        currentPlayerStatus.textContent = Game.getCurrentPlayer().checkAi() === true ? 'AI' : 'Human';
+        //currentPlayerStatus.textContent = Game.getCurrentPlayer().checkAi() === true ? 'AI' : 'Human';
     }
 
     function displayMatchingPattern() {
@@ -618,7 +613,7 @@ const DisplayController = ((Game) => {
     function handleQuit() {
         Game.endGame();
         gameScreen.style.display = 'none';
-        aiButtons.forEach(aiButton => aiButton.classList.remove('is-ai'));
+        //aiButtons.forEach(aiButton => aiButton.classList.remove('is-ai'));
         markButtons.forEach(markButton => markButton.classList.remove('selected-mark'));
         playerOneName.classList.remove('winner');
         playerTwoName.classList.remove('winner');
@@ -627,10 +622,9 @@ const DisplayController = ((Game) => {
         setupScreen.style.display = 'flex';
     }
 
-    function handleBoardClicks(event) {
+    function playRound(event) {
         const cell = event.target;
         const move = { row: cell.dataset.row, column: cell.dataset.column };
-
         const currentPlayer = Game.getCurrentPlayer();
         const gameStatus = Game.gameStatus;
         currentPlayer.setMove(move);

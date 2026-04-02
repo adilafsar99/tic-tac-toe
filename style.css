@@ -62,16 +62,16 @@ input, button {
 
 .player-name-field {
     width: 100%;
-    border-top-right-radius: 0px;
-    border-bottom-right-radius: 0px;
+    /* border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px; */
 }
 
-.ai-button {
+/* .ai-button {
     width: 60px;
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
     background-color: var(--color-red);
-}
+} */
 
 .mark-buttons-div {
     text-align: center;
