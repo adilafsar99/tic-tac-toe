@@ -5,7 +5,7 @@ const Player = () => {
     let mark;
     let move;
 
-    let isAi = false;
+    //let isAi = false;
     let score = 0;
 
     const getName = () => name;
@@ -20,9 +20,9 @@ const Player = () => {
 
     const setMove = newMove => move = newMove;
 
-    const checkAi = () => isAi;
+    //const checkAi = () => isAi;
 
-    const toggleAi = () => isAi = isAi ? false : true;
+    //const toggleAi = () => isAi = isAi ? false : true;
 
     const getScore = () => score;
 
@@ -32,10 +32,10 @@ const Player = () => {
         name = '';
         mark = '';
         score = 0;
-        isAi = false;
+        //isAi = false;
     }
 
-    return { getName, setName, getMark, setMark, getMove, setMove, checkAi, toggleAi, getScore, incrementScore, resetPlayer };
+    return { getName, setName, getMark, setMark, getMove, setMove, getScore, incrementScore, resetPlayer };
 
 };
 
@@ -44,16 +44,19 @@ const Board = (() => {
     let columns = 3;
     let board = [];
     let matchingPattern = [];
-
+    
+    // To create a board for games other than tic-tac-toe
     const createBoard = () => {
         board = Array.from(Array(rows), () => Array(columns).fill(null));
         return board;
     }
-
+    
+    // To prevent mutation of the original board
     const cloneBoard = (board) => {
         return board.map(row => [...row]);
     }
-
+    
+    // To check availabe squares
     const isEmpty = (board) => {
         for (let row = 0; row < board.length; row++) {
             for (let column = 0; column < board[row].length; column++) {
@@ -64,14 +67,18 @@ const Board = (() => {
         }
         return false;
     }
-
+    
+    // This should not be here. It's preventing the program from running the playRound
+    // function if the board is already occupied. The makeMove function only prevents
+    // placing the mark on a non-empty square. Without this the turn keeps changing.
     const checkMove = (board, move) => {
         if (board[move.row][move.column] !== 'X' && board[move.row][move.column] !== 'O') {
             return true;
         }
         return false;
     }
-
+    
+    // To place the player's mark on the board
     const makeMove = (board, move, mark) => {
         if (board[move.row][move.column] === null) {
             board[move.row][move.column] = mark;
@@ -79,11 +86,12 @@ const Board = (() => {
         }
         return false;
     }
-
+    
+    // To check for matching pattern on the board
     const checkBoard = (board, mark) => {
         return checkRows(board, mark) || checkColumns(board, mark) || checkDiagonals(board, mark);
     }
-
+    
     const checkRows = (board, mark) => {
         let targetRow = 0;
         for (let row = 0; row < board.length; row++) {
@@ -177,9 +185,10 @@ const Board = (() => {
         }
         return false;
     }
-
+    
+    // To retrive the squares matched to display the winning move.
     const getMatchingPattern = () => matchingPattern;
-
+    
     const resetMatchingPattern = () => matchingPattern = [];
 
     return { createBoard, cloneBoard, isEmpty, checkMove, makeMove, checkBoard, checkRows, checkColumns, checkDiagonals, checkDraw, getMatchingPattern, resetMatchingPattern }
@@ -260,6 +269,7 @@ const Board = (() => {
 //     return { findBestMove }
 // })(Board);
 
+// The module with the properties and methods to control the flow of the game
 const Game = ((Player, Board) => {
     let playerOne = Player();
     let playerTwo = Player();
@@ -272,7 +282,8 @@ const Game = ((Player, Board) => {
     let draws;
     let gameStatus = {};
     let matchingPattern;
-
+    
+    // To create the player objects based on user selection
     const initializePlayers = (playerOneConfig = {}, playerTwoConfig = {}) => {
         playerOne.setName(playerOneConfig.name);
         playerOne.setMark(playerOneConfig.mark);
@@ -290,22 +301,26 @@ const Game = ((Player, Board) => {
         playerOne.resetPlayer();
         playerTwo.resetPlayer();
     }
-
+    
+    // Flag used to change rounds, announce winner and end the game
     const setGameStatus = () => {
         gameStatus.hasPlayerWon = false;
         gameStatus.isDraw = false;
         gameStatus.hasRoundEnded = false;
         gameStatus.hasGameEnded = false;
     }
-
+    
+    // Gameboard cannot be accessed otherwise
     const getBoard = () => board;
-
+    
+    // Is undefined otherwise
     const getCurrentPlayer = () => currentPlayer;
 
     const setCurrentPlayer = () => {
         currentPlayer = playerOne.getMark() === 'X' ? playerOne : playerTwo;
     }
-
+    
+    // Setup the initial state of the game
     const startGame = (playerOneConfig, playerTwoConfig) => {
         board = Board.createBoard();
         initializePlayers(playerOneConfig, playerTwoConfig);
@@ -315,7 +330,8 @@ const Game = ((Player, Board) => {
         round = 1;
         draws = 0;
     }
-
+    
+    // These functions are created to make the playRound() function easy to read 
     const checkMove = () => {
         return Board.checkMove(board, currentPlayer.getMove());
     }
@@ -336,7 +352,8 @@ const Game = ((Player, Board) => {
     const resetMatchingPattern = () => {
         Board.resetMatchingPattern();
     }
-
+    
+    // To check for a winner for the current round
     const checkRoundWin = () => {
         if (Board.checkBoard(board, currentPlayer.getMark())) {
             gameStatus.hasPlayerWon = true;
@@ -346,10 +363,9 @@ const Game = ((Player, Board) => {
         }
         return false;
     }
-
+    
+    // Used to make the losing player go first next
     const setRoundWinner = () => roundWinner = currentPlayer;
-
-    const getRoundWinner = () => roundWinner;
 
     const checkRoundDraw = () => {
         if (Board.checkDraw(board, currentPlayer.getMove(), currentPlayer.getMark())) {
@@ -363,6 +379,8 @@ const Game = ((Player, Board) => {
 
     const incrementDraws = () => ++draws;
 
+    // Because of closures, if I don't use a function that has access to the same scope,
+    // all the variables return undefined
     const getDraws = () => draws;
 
     const getTurn = () => turn;
@@ -376,7 +394,8 @@ const Game = ((Player, Board) => {
     const getRound = () => round;
 
     const incrementRound = () => ++round;
-
+    
+    // Whoever has won three rounds
     const checkGameWin = () => {
         if (currentPlayer.getScore() === 3) {
             gameStatus.hasGameEnded = true;
@@ -388,7 +407,8 @@ const Game = ((Player, Board) => {
     const setGameWinner = () => gameWinner = currentPlayer;
 
     const getGameWinner = () => gameWinner;
-
+    
+    // To setuo the game state for the next round
     const continueGame = () => {
         incrementRound();
         board = Board.createBoard();
@@ -405,7 +425,8 @@ const Game = ((Player, Board) => {
             currentPlayer = playerOne;
         }
     }
-
+    
+    // Used upon a game win or upon quitting the game
     const endGame = () => {
         board = [];
         resetMatchingPattern();
@@ -418,7 +439,8 @@ const Game = ((Player, Board) => {
         round = 1;
         draws = 0;
     }
-
+    
+    // The function that runs when the user clicks the board
     const playRound = () => {
         if (!checkRoundWin() && !checkRoundDraw()) {
             if (checkMove()) {
@@ -481,7 +503,8 @@ const DisplayController = ((Game) => {
     //     const playerAi = event.target;
     //     playerAi.classList.toggle('is-ai');
     // }
-
+    
+    // Retrieve the player marks and add visual indications
     function selectMark(event) {
         const playerMark = event.target;
         const markButtons = playerMark.parentElement.children;
@@ -502,7 +525,8 @@ const DisplayController = ((Game) => {
             }
         }
     }
-
+    
+    // To setup the initial UI state for the game
     function startGame() {
         //const playerOneAiButton = document.querySelector('.player-one.is-ai');
         const playerOneMarkButton = document.querySelector('.player-one.selected-mark');
@@ -536,7 +560,8 @@ const DisplayController = ((Game) => {
         gameScreen.style.display = 'block';
         updateDisplay();
     }
-
+    
+    // To render the board
     function displayBoard() {
         gameboard.innerHTML = '';
         const board = Game.getBoard();
@@ -552,7 +577,8 @@ const DisplayController = ((Game) => {
             })
         })
     }
-
+    
+    // Present at the top of the board
     function displayPlayerStats() {
         playerOneName.textContent = playerOne.getName();
         playerOneMark.textContent = playerOne.getMark();
@@ -561,7 +587,8 @@ const DisplayController = ((Game) => {
         playerTwoMark.textContent = playerTwo.getMark();
         playerTwoScore.textContent = playerTwo.getScore();
     }
-
+    
+    // Present at the base of the board
     function displayGameStats() {
         const round = document.querySelector('#round');
         const turn = document.querySelector('#turn');
@@ -574,7 +601,8 @@ const DisplayController = ((Game) => {
         currentPlayerMark.textContent = Game.getCurrentPlayer().getMark();
         //currentPlayerStatus.textContent = Game.getCurrentPlayer().checkAi() === true ? 'AI' : 'Human';
     }
-
+    
+    // To show the squares that are matching
     function displayMatchingPattern() {
         const matchingPattern = Game.getMatchingPattern();
         const cells = document.querySelectorAll('.cell');
@@ -587,7 +615,8 @@ const DisplayController = ((Game) => {
             })
         })
     }
-
+    
+    // To update the UI after every turn
     function updateDisplay(gameStatus = {}) {
         if (gameStatus.hasGameEnded) {
             const winner = Game.getGameWinner();
@@ -603,13 +632,15 @@ const DisplayController = ((Game) => {
         displayPlayerStats();
         displayGameStats();
     }
-
+    
+    // When the continue button is clicked
     function handleContinuation() {
         continueButton.style.display = 'none';
         Game.continueGame();
         updateDisplay();
     }
-
+    
+    // When the quit button is clicked
     function handleQuit() {
         Game.endGame();
         gameScreen.style.display = 'none';
@@ -621,7 +652,8 @@ const DisplayController = ((Game) => {
         playerTwoInput.value = 'Player Two';
         setupScreen.style.display = 'flex';
     }
-
+    
+    // The function that handles user input and calls the Game module's playRound()
     function playRound(event) {
         const cell = event.target;
         const move = { row: cell.dataset.row, column: cell.dataset.column };
